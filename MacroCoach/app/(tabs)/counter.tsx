@@ -4,17 +4,17 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 const HomeScreen = () => {
 
 
-  const [callo, setCallo] = useState(0);
+  const [calo, setCalo] = useState(0);
 
   const addCalories = () => {
-    setCallo(callo + 5);
+    setCalo(callo + 5);
   };
 
   return (
 
     <View style={styles.container}>
       <Text style={styles.title}>Calorie Tracker</Text>
-      <Text style={styles.counter}>Calorie counter: {callo}</Text>
+      <Text style={styles.counter}>Calorie counter: {calo}</Text>
       <TouchableOpacity onPress={addCalories} style={styles.button}>
         <Text style={styles.buttonText}>Add</Text>
       </TouchableOpacity>
@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 10,
-    backgroundColor: 'blue',
     borderRadius: 5,
+    backgroundColor: '#0a7ea4',
   },
   buttonText: {
     color: 'white',
