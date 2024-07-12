@@ -7,7 +7,7 @@ const HomeScreen = () => {
   const [calo, setCalo] = useState(0);
 
   const addCalories = () => {
-    setCalo(callo + 5);
+    setCalo(calo + 5);
   };
 
   return (
