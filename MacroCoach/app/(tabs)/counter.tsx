@@ -1,29 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeBaseProvider, Box, Button } from "native-base";
+import useCounter from '@/hooks/useCurrentCounter';
+import { useRoute, RouteProp } from '@react-navigation/native';
 
 const HomeScreen = () => {
 
 
-    const [calo, setCalo] = useState(0);
+  const { counter, setCounter } = useCounter();
 
-    const addCalories = () => {
-        setCalo(calo + 5);
-    };
+  const route = useRoute<any>();
+  const { food } = route.params;
+  console.log(food)
 
-    const resetCalories = () => {
-        setCalo(0);
-    }
+useEffect(() => {
+    setCounter(counter.map((item, index) => {
+      if (index === counter.length - 1) {
+        return {
+          ...item,
+          calories: item.calories + food.calories,
+          protein: item.protein + food.protein,
+          carbs: item.carbs + 0,
+          fats: item.fats + 0
+        };
+      } else {
+        return item;
+      }
+    }));
+  }, [food]);
 
-    return (
-        <View style={styles.container}>
-        <Text style={styles.title}>Calorie Tracker</Text>
-        <Text style={styles.counter}>daily calorie count: {calo}</Text>
-        <TouchableOpacity onPress={addCalories} style={styles.button}>
-            <Text style={styles.buttonText}>Add</Text>
-        </TouchableOpacity>
-        </View>
-    );
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Calorie Tracker</Text>
+      <Text style={styles.counter}>daily calorie count: {counter.at(counter.length - 1)?.calories}</Text>
+      <Text style={styles.counter}>daily protein count: {counter.at(counter.length - 1)?.protein}</Text>
+
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({

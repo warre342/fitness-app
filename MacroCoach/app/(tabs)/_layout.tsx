@@ -1,4 +1,4 @@
-import { Tabs } from 'expo-router';
+import { Tabs } from 'expo-router'; // is een wrapper voor import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
@@ -10,6 +10,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="counter"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
@@ -35,7 +36,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="counter"
         options={{
-          title: 'Testing',
+          title: 'Counter',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),
@@ -45,6 +46,15 @@ export default function TabLayout() {
         name="nativebase"
         options={{
           title: 'css testing',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="savedmeals"
+        options={{
+          title: 'meals',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),
