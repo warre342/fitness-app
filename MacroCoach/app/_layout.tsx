@@ -6,6 +6,9 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import useDatabase from '@/hooks/useDatabase';
+import { CounterContextProvider } from '../context/counterContext'
+import { NativeBaseProvider } from 'native-base';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -16,22 +19,46 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
+  const isDBLoadingComplete = useDatabase();
+
   useEffect(() => {
-    if (loaded) {
+    if (loaded && isDBLoadingComplete) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, isDBLoadingComplete]);
 
-  if (!loaded) {
+  if (!loaded || !isDBLoadingComplete) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <NativeBaseProvider>
+      <CounterContextProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </ThemeProvider>
+      </CounterContextProvider>
+    </NativeBaseProvider>
+
   );
+  /*
+    if (loaded && isDBLoadingComplete) {
+      SplashScreen.hideAsync();
+      return (
+        <UsersContextProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+            </ThemeProvider>
+        </UsersContextProvider>
+    );
+    }
+    else{
+      return null; 
+    }*/
 }
