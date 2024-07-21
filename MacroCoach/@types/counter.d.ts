@@ -10,9 +10,6 @@ export interface ICounter {
 //   vb: { startOfDay:"15/7/2024" , calories: 0, protein : 0,carbs:0, fats:0 },
 export type CounterContextType= {
     counters: ICounter[];
-    saveCounter: (counter: ICounter)=> void; 
-    updateCounter: (counter: ICounter) => void;
-    saveCounterDB:(counter: ICounter)=> void; 
-    getCountersDB:()=> void;
-
+    setCounters: (counters: ICounter[])=> void;
+    insertOrReplaceCounter: (counter: ICounter) => void;
 };

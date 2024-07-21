@@ -13,7 +13,7 @@ export default function useDatabase() {
       try {
         //await database.dropDatabaseTablesAsync()
         await database.setupDatabaseAsync()
-        await database.setupUsersAsync()
+        await database.setupCountersAsync()
 
         setDBLoadingComplete(true);
       } catch (e) {

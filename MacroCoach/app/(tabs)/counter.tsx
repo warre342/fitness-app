@@ -9,7 +9,6 @@ import { CounterContextType } from '@/@types/counter';
 const HomeScreen = () => {
 
 
-  const { counter, setCounter } = useCounter();
 
   const route = useRoute<any>();
   const food = route.params ? route.params.food : { calories: 0, protein: 0 , carbs:0, fats:0};
@@ -17,41 +16,37 @@ const HomeScreen = () => {
 
   const counterContext = useContext(CounterContext);
 
-  const { counters, saveCounter, updateCounter, saveCounterDB, getCountersDB } =counterContext as CounterContextType;
-
+  const { counters, setCounters,insertOrReplaceCounter } =counterContext as CounterContextType;
 
   useEffect(() => {
 
-      setCounter(counter.map((item, index) => {
-        if (index === counter.length - 1) {
-          return {
-            ...item,
-            calories: item.calories + food.calories,
-            protein: item.protein + food.protein,
-            carbs: item.carbs + food.carbs,
-            fats: item.fats + food.fats
-          };
-        } else {
-          return item;
-        }
-      }));
+    setCounters(counters.map((item, index) => {
+      if (index === counters.length - 1) {
+        return {
+          ...item,
+          calories: item.calories + food.calories,
+          protein: item.protein + food.protein,
+          carbs: item.carbs + food.carbs,
+          fats: item.fats + food.fats
+        };
+      } else {
+        return item;
+      }
+      
+      
+    }));
+          
     }, [route.params]);
   
-  console.log(counter, "local counter")
+  console.log(counters, "local counter")
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Calorie Tracker</Text>
-      <Text style={styles.counter}>daily calorie count: {counter.at(counter.length - 1)?.calories}</Text>
-      <Text style={styles.counter}>daily protein count: {counter.at(counter.length - 1)?.protein}g</Text>
-      <Text style={styles.counter}>daily carbohydrate count: {counter.at(counter.length - 1)?.carbs}g</Text>
-      <Text style={styles.counter}>daily fat count: {counter.at(counter.length - 1)?.fats}g</Text>
-      <Divider/>
       <Text style={styles.title}>Calorie Tracker</Text>
       <Text style={styles.counter}>daily calorie count: {counters.at(counters.length - 1)?.calories}</Text>
       <Text style={styles.counter}>daily protein count: {counters.at(counters.length - 1)?.protein}g</Text>
       <Text style={styles.counter}>daily carbohydrate count: {counters.at(counters.length - 1)?.carbs}g</Text>
       <Text style={styles.counter}>daily fat count: {counters.at(counters.length - 1)?.fats}g</Text>
-      <Divider/>
+
     </View>
   );
 };

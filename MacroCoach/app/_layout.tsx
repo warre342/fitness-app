@@ -20,6 +20,7 @@ export default function RootLayout() {
   });
 
   const isDBLoadingComplete = useDatabase();
+  console.log("database:",isDBLoadingComplete,", fonts:", loaded)
 
   useEffect(() => {
     if (loaded && isDBLoadingComplete) {
