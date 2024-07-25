@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import useDatabase from '@/hooks/useDatabase';
+import useDatabase from '@/hooks/useDatabaseLoading';
 import { CounterContextProvider } from '../context/counterContext'
 import { NativeBaseProvider } from 'native-base';
 

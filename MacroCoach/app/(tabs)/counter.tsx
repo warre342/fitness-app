@@ -1,18 +1,18 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeBaseProvider, Box, Button, Divider } from "native-base";
-import useCounter from '@/hooks/useCurrentCounter';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { CounterContext } from '@/context/counterContext';
 import { CounterContextType } from '@/@types/counter';
+import { FoodItem } from '@/@types/foodItem';
 
 const HomeScreen = () => {
 
 
 
   const route = useRoute<any>();
-  const food = route.params ? route.params.food : { calories: 0, protein: 0 , carbs:0, fats:0};
-  console.log(food)
+  const foodArray = route.params ? route.params.food : [{ key: 0, name: "",calories: 0, protein: 0 , carbs:0, fats:0}];
+  console.log(foodArray)
 
   const counterContext = useContext(CounterContext);
 
@@ -20,17 +20,26 @@ const HomeScreen = () => {
 
   useEffect(() => {
 
-    setCounters(counters.map((item, index) => {
+    setCounters(counters.map((counter, index) => {
       if (index === counters.length - 1) {
+
+        const countObject= { calories: 0, protein: 0, carbs: 0, fats: 0 };//total count van alle geselecteerde food items berekenen
+        foodArray.forEach((food: FoodItem) => {
+          countObject.calories+=food.calories
+          countObject.calories+=food.protein
+          countObject.calories+=food.carbs
+          countObject.calories+=food.fats
+        }); 
         return {
-          ...item,
-          calories: item.calories + food.calories,
-          protein: item.protein + food.protein,
-          carbs: item.carbs + food.carbs,
-          fats: item.fats + food.fats
+
+          ...counter,
+          calories: counter.calories + countObject.calories,
+          protein: counter.protein + countObject.protein,
+          carbs: counter.carbs + countObject.carbs,
+          fats: counter.fats + countObject.fats
         };
       } else {
-        return item;
+        return counter;
       }
       
       
@@ -38,7 +47,7 @@ const HomeScreen = () => {
           
     }, [route.params]);
   
-  console.log(counters, "local counter")
+  console.log(counters, "local counters")
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Calorie Tracker</Text>
