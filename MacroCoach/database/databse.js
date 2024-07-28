@@ -102,7 +102,7 @@ const dropDatabaseTablesAsync = async () => {
 }
 
 //maak de table counters aan als die nog niet bestaat
-const setupDatabaseAsync = async () => {
+const setupDatabaseAsyncCounters = async () => {
   console.log("Starting table creation");
   try {
     await new Promise((resolve, reject) => {
@@ -194,7 +194,7 @@ const setupCountersAsync = async () => {
 export const database = {
   getCounters,
   insertCounter,
-  setupDatabaseAsync,
+  setupDatabaseAsyncCounters,
   setupCountersAsync,
   dropDatabaseTablesAsync,
 }

@@ -8,7 +8,7 @@ export interface ICounter {
     fats: number
 }
 //   vb: { startOfDay:"15/7/2024" , calories: 0, protein : 0,carbs:0, fats:0 },
-export type CounterContextType= {
+export type DatabaseContextType= {
     counters: ICounter[];
     setCounters: (counters: ICounter[])=> void;
     insertOrReplaceCounter: (counter: ICounter) => void;

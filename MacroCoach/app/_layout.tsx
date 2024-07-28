@@ -7,7 +7,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import useDatabase from '@/hooks/useDatabaseLoading';
-import { CounterContextProvider } from '../context/counterContext'
+import { DatabaseContextProvider } from '../context/databaseContext'
 import { NativeBaseProvider } from 'native-base';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -34,14 +34,14 @@ export default function RootLayout() {
 
   return (
     <NativeBaseProvider>
-      <CounterContextProvider>
+      <DatabaseContextProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
         </ThemeProvider>
-      </CounterContextProvider>
+      </DatabaseContextProvider>
     </NativeBaseProvider>
 
   );

@@ -12,7 +12,7 @@ export default function useDatabase() {
     async function loadDataAsync() {
       try {
         //await database.dropDatabaseTablesAsync()
-        await database.setupDatabaseAsync()
+        await database.setupDatabaseAsyncCounters()
         await database.setupCountersAsync()
 
         setDBLoadingComplete(true);

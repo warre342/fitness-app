@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Button } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 //import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Camera, CameraView } from 'expo-camera';
 import axios from 'axios';
-import { Box, Center, Divider, HStack, Icon, ScrollView, VStack, Text } from 'native-base';
+import { Box, Center, Divider, HStack, Icon, ScrollView, VStack, Text, Button, Modal, FormControl, Input } from 'native-base';
 //barcode Scanner is depricated, using expo camera https://github.com/expo/fyi/blob/main/barcode-scanner-to-expo-camera.md
 
 interface ProductData {
@@ -11,6 +11,9 @@ interface ProductData {
         nutrient_levels?: any; // Replace with specific type if known
         nutriments?: any;
         nutrient_levels_tags?: any;
+        product_name: string;
+        serving_size: string;
+        product_quantity: string;
     };
     status?: string;
     status_verbose?: string;
@@ -19,11 +22,12 @@ interface ProductData {
 
 
 export default function App() {
+    //camera
     const [hasPermission, setHasPermission] = useState<Boolean>();
     const [scanned, setScanned] = useState<Boolean>(false);
     const [barcodeText, setBarcodeText] = useState<String>('Not yet scanned')
     const [JSONdata, setJSONData] = useState<ProductData>()
-    const [obtainedData, setObtainedData] = useState<Boolean>(false);
+    const [obtainedData, setObtainedData] = useState<Boolean>(false);//not used currently
 
 
     const constApiLink = "https://nl.openfoodfacts.org/api/v0/product/"// [barcode].json is expected at the end
@@ -35,9 +39,15 @@ export default function App() {
         })()
     }
 
+    const addProduct = () => {
+
+
+
+    }
     // Request Camera Permission
     useEffect(() => {
         askForCameraPermission();
+
     }, []);
 
     useEffect(() => {
@@ -64,6 +74,10 @@ export default function App() {
                         nutrient_levels: response.data.product?.nutrient_levels,
                         nutriments: response.data.product?.nutriments,
                         nutrient_levels_tags: response.data.product?.nutrient_levels_tags,
+                        product_name: response.data.product?.product_name,
+                        serving_size: response.data.product?.serving_size,
+                        product_quantity: response.data.product?.product_quantity,
+
                     },
                     status: response.data.status,
                     status_verbose: response.data.status_verbose
@@ -78,7 +92,7 @@ export default function App() {
         })(constApiLink + barcodeText + ".json")//get the json object from the link and save it
 
         //console.log("filtered jsondata", JSONdata, "\n")
-        //console.log('Type: ' + type + '\nData: ' + data + ".")
+        console.log('Type: ' + type + '\nData: ' + data + ".")
     }
 
 
@@ -95,14 +109,14 @@ export default function App() {
             <ScrollView flex={1} h="100%">
                 <Box style={styles.container}>
                     <Text style={{ margin: 10 }}>No access to camera</Text>
-                    <Button title={'Allow Camera'} onPress={() => askForCameraPermission()} />
+                    <Button onPress={() => askForCameraPermission()}>Allow Camera</Button >
                 </Box>
             </ScrollView>
         )
     }
 
-
-    const nutriments = JSONdata?.product?.nutriments || {};
+    //modal
+    const [showModal, setShowModal] = useState(false);
 
     // Return the View
     return (
@@ -114,31 +128,36 @@ export default function App() {
                         style={{ height: 400, width: 400 }} />
                 </View>
                 <Text style={styles.maintext}>Barcode: {barcodeText}</Text>
+                {scanned && (<Button onPress={() => setScanned(false)} color='tomato'>Scan again</Button>)}
 
                 {JSONdata !== undefined && obtainedData && (
                     <Box w="100%" p={4}>
                         <Box w="100%" p={6} paddingTop={3} bg="warmGray.50"  >
-                            <Text textAlign="center" paddingBottom={3} fontWeight="bold" fontSize={"md"}>
+                            <Text fontWeight="bold" fontSize={"lg"} textAlign={"center"}>Product found: {JSONdata?.product?.product_name ?? "/"}</Text>
+                            <Divider />
+                            <Text textAlign="center" paddingTop={3} paddingBottom={2} fontWeight="bold" fontSize={"md"}>
                                 Nutrient Levels
                             </Text>
                             <VStack space={3} divider={<Divider />} w="100%" >
                                 <HStack justifyContent="space-between">
-                                    <Text>fat</Text>
-                                    <Text>{JSONdata?.product?.nutrient_levels?.fat ?? 'No data available'}</Text>
+                                    <Text>sugars</Text>
+                                    <Text>{JSONdata?.product?.nutrient_levels?.sugars ?? 'No data available'}</Text>
                                 </HStack>
                                 <HStack justifyContent="space-between">
-                                    <Text>salt</Text>
-
-                                    <Text>{JSONdata?.product?.nutrient_levels?.salt ?? 'No data available'}</Text>
+                                    <Text>fat</Text>
+                                    <Text>{JSONdata?.product?.nutrient_levels?.fat ?? 'No data available'}</Text>
                                 </HStack>
                                 <HStack justifyContent="space-between">
                                     <Text>saturated fat</Text>
                                     <Text>{JSONdata?.product?.nutrient_levels?.['saturated-fat'] ?? 'No data available'}</Text>
                                 </HStack>
                                 <HStack justifyContent="space-between">
-                                    <Text>sugars</Text>
-                                    <Text>{JSONdata?.product?.nutrient_levels?.sugars ?? 'No data available'}</Text>
+                                    <Text>salt</Text>
+
+                                    <Text>{JSONdata?.product?.nutrient_levels?.salt ?? 'No data available'}</Text>
                                 </HStack>
+
+
                             </VStack>
                         </Box>
                         <Box w="100%" p={6} paddingTop={3} bg="warmGray.50">
@@ -147,50 +166,85 @@ export default function App() {
                             </Text>
                             <VStack space={3} divider={<Divider />} w="100%">
                                 <HStack justifyContent="space-between" >
-                                    <Text fontWeight={"bold"}>Type</Text>
-                                    <Text fontWeight={"bold"}>Per/100g</Text>
+                                    <Text fontWeight={"bold"}>Type   </Text>
+                                    <Text fontWeight={"bold"}>Per/100</Text>
                                     <Text fontWeight={"bold"}>Per/serving</Text>
                                 </HStack>
                                 <HStack justifyContent="space-between">
-                                    <Text>Carbs</Text>
-                                    <Text>{JSONdata?.product?.nutriments?.["carbohydrates_100g"] + "g" ?? "/"}</Text>
-
-                                    <Text>{JSONdata?.product?.nutriments?.["carbohydrates_serving"] + "g" ?? '/'}</Text>
-                                </HStack>
-                                <HStack justifyContent="space-between">
-                                    <Text>Kcal</Text>
+                                    <Text>Kcal   </Text>
                                     <Text>{JSONdata?.product?.nutriments?.["energy-kcal_100g"] ?? "/"}</Text>
                                     <Text>{JSONdata?.product?.nutriments?.["energy-kcal_serving"] ?? "/"}</Text>
                                 </HStack>
                                 <HStack justifyContent="space-between">
-                                    <Text>Fat</Text>
-                                    <Text>{JSONdata?.product?.nutriments?.["fat_100g"] + "g" ?? "/"}</Text>
-                                    <Text>{JSONdata?.product?.nutriments?.["fat_serving"] + "g" ?? "/"}</Text>
-                                </HStack>
-                                <HStack justifyContent="space-between">
                                     <Text>Protein</Text>
-                                    <Text>{JSONdata?.product?.nutriments?.["proteins_100g"] + "g" ?? "/"}</Text>
-                                    <Text>{JSONdata?.product?.nutriments?.["proteins_serving"] + "g" ?? "/"}</Text>
+                                    <Text>{JSONdata?.product?.nutriments?.["proteins_100g"] ?? "/"}{"g"}</Text>
+                                    <Text>{JSONdata?.product?.nutriments?.["proteins_serving"] ?? "/"}{"g"}</Text>
                                 </HStack>
                                 <HStack justifyContent="space-between">
-                                    <Text>Sugar</Text>
-                                    <Text>{JSONdata?.product?.nutriments?.["sugars_100g"] + "g" ?? "/"}</Text>
-                                    <Text>{JSONdata?.product?.nutriments?.["sugars_serving"] + "g" ?? "/"}</Text>
+                                    <Text>Carbs</Text>
+                                    <Text>{JSONdata?.product?.nutriments?.["carbohydrates_100g"] ?? "/"}{"g"}</Text>
+
+                                    <Text>{JSONdata?.product?.nutriments?.["carbohydrates_serving"] ?? "/"}{"g"}</Text>
                                 </HStack>
 
+                                <HStack justifyContent="space-between">
+                                    <Text>Fat    </Text>
+                                    <Text>{JSONdata?.product?.nutriments?.["fat_100g"] ?? "/"}{"g"}</Text>
+                                    <Text>{JSONdata?.product?.nutriments?.["fat_serving"] ?? "/"}{"g"}</Text>
+                                </HStack>
+
+                                <HStack justifyContent="space-between">
+                                    <Text>Sugar  </Text>
+                                    <Text>{JSONdata?.product?.nutriments?.["sugars_100g"] ?? "/"}{"g"}</Text>
+                                    <Text>{JSONdata?.product?.nutriments?.["sugars_serving"] ?? "/"}{"g"}</Text>
+                                </HStack>
+                                <Text textAlign="center">total size: {JSONdata?.product?.product_quantity ?? "/"} </Text>
+                                <Text textAlign="center">Serving size: {JSONdata?.product?.serving_size ?? "/"} </Text>
                             </VStack>
                         </Box>
+                        <Button shadow={2} onPress={() => setShowModal(true)}>
+                            Add Item
+                        </Button>
+                        <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+                            <Modal.Content maxWidth="400px">
+                                <Modal.CloseButton />
+                                <Modal.Header>Add item</Modal.Header>
+                                <Modal.Body>
+                                    <FormControl>
+                                        <FormControl.Label>Name</FormControl.Label>
+                                        <Input />
+                                    </FormControl>
+                                    <FormControl mt="3">
+                                        <FormControl.Label >Serving</FormControl.Label>
+                                        <Input placeholder="e.g. 100g" keyboardType="numeric"/>
+                                    </FormControl>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button.Group space={2}>
+                                        <Button variant="ghost" colorScheme="blueGray" onPress={() => {
+                                            setShowModal(false);
+                                        }}>
+                                            Cancel
+                                        </Button>
+                                        <Button onPress={() => {
+                                            setShowModal(false);
+                                        }}>
+                                            Save
+                                        </Button>
+                                    </Button.Group>
+                                </Modal.Footer>
+                            </Modal.Content>
+                        </Modal>
+
                     </Box>
 
-                )}
-
-
+                )
+                }
 
 
                 <Text style={styles.maintext}>{JSON.stringify(JSONdata)}</Text>
 
 
-                {scanned && <Button title={'Scan again?'} onPress={() => setScanned(false)} color='tomato' />}
             </Box>
         </ScrollView>
     );

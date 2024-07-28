@@ -2,59 +2,64 @@ import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeBaseProvider, Box, Button, Divider } from "native-base";
 import { useRoute, RouteProp } from '@react-navigation/native';
-import { CounterContext } from '@/context/counterContext';
-import { CounterContextType } from '@/@types/counter';
+import { DatabaseContext } from '@/context/databaseContext';
+import { DatabaseContextType } from '@/@types/counter';
 import { FoodItem } from '@/@types/foodItem';
 
 const HomeScreen = () => {
 
 
-
   const route = useRoute<any>();
-  const foodArray = route.params ? route.params.food : [{ key: 0, name: "",calories: 0, protein: 0 , carbs:0, fats:0}];
-  console.log(foodArray)
+  //console.log("route", route.params);
+  const [foodArray, setFoodArray] = useState<FoodItem[]>([{ key: 0, name: "", calories: 0, protein: 0, carbs: 0, fats: 0 }]);
+  //console.log("foodarray", foodArray);
 
-  const counterContext = useContext(CounterContext);
 
-  const { counters, setCounters,insertOrReplaceCounter } =counterContext as CounterContextType;
+  const databaseContext = useContext(DatabaseContext);//database
+  const { counters, setCounters, insertOrReplaceCounter } = databaseContext as DatabaseContextType;
 
   useEffect(() => {
+    console.log("changed route.params", route.params)
+    if (route.params !== undefined && route.params[0]) {
+      setFoodArray(route.params)
+    }
+    console.log("foodarray na set", foodArray, "end")
+  }, [route.params]);
 
-    setCounters(counters.map((counter, index) => {
-      if (index === counters.length - 1) {
+  useEffect(() => {
+    if (foodArray.length > 0 && foodArray[0].key !== 0) {
+      setCounters(counters.map((counter, index) => {
+        if (index === counters.length - 1) {
+          const countObject = { calories: 0, protein: 0, carbs: 0, fats: 0 };
+          foodArray.forEach((food: FoodItem) => {
+            countObject.calories += food.calories;
+            countObject.protein += food.protein;
+            countObject.carbs += food.carbs;
+            countObject.fats += food.fats;
+          });
+          return {
+            ...counter,
+            calories: counter.calories + countObject.calories,
+            protein: counter.protein + countObject.protein,
+            carbs: counter.carbs + countObject.carbs,
+            fats: counter.fats + countObject.fats
+          };
+        } else {
+          return counter;
+        }
+      }));
+    }
+  }, [foodArray]);
 
-        const countObject= { calories: 0, protein: 0, carbs: 0, fats: 0 };//total count van alle geselecteerde food items berekenen
-        foodArray.forEach((food: FoodItem) => {
-          countObject.calories+=food.calories
-          countObject.calories+=food.protein
-          countObject.calories+=food.carbs
-          countObject.calories+=food.fats
-        }); 
-        return {
-
-          ...counter,
-          calories: counter.calories + countObject.calories,
-          protein: counter.protein + countObject.protein,
-          carbs: counter.carbs + countObject.carbs,
-          fats: counter.fats + countObject.fats
-        };
-      } else {
-        return counter;
-      }
-      
-      
-    }));
-          
-    }, [route.params]);
-  
   console.log(counters, "local counters")
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Calorie Tracker</Text>
-      <Text style={styles.counter}>daily calorie count: {counters.at(counters.length - 1)?.calories}</Text>
-      <Text style={styles.counter}>daily protein count: {counters.at(counters.length - 1)?.protein}g</Text>
-      <Text style={styles.counter}>daily carbohydrate count: {counters.at(counters.length - 1)?.carbs}g</Text>
-      <Text style={styles.counter}>daily fat count: {counters.at(counters.length - 1)?.fats}g</Text>
+      <Text style={styles.title}>Daily Counter</Text>
+      <Text style={styles.counter}>calorie count: {counters.at(counters.length - 1)?.calories}</Text>
+      <Text style={styles.counter}>protein count: {counters.at(counters.length - 1)?.protein}g</Text>
+      <Text style={styles.counter}>carbohydrate count: {counters.at(counters.length - 1)?.carbs}g</Text>
+      <Text style={styles.counter}>fat count: {counters.at(counters.length - 1)?.fats}g</Text>
+      <Button onPress={() => insertOrReplaceCounter({ startOfDay: "15/7/2024", calories: 0, protein: 0, carbs: 0, fats: 0 })}>Clear counter</Button>
 
     </View>
   );

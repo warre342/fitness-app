@@ -1,5 +1,5 @@
 export interface FoodItem {
-  key: string;
+  key: number;
   name: string;
   calories: number;
   protein: number;

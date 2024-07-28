@@ -1,6 +1,5 @@
-// context/counterContext.tsx
 import * as React from 'react';
-import { CounterContextType, ICounter } from '@/@types/counter';
+import {  DatabaseContextType, ICounter } from '@/@types/counter';
 import { database } from '@/database/databse';
 import { useEffect } from 'react';
 
@@ -16,9 +15,9 @@ const isEqualCounter = (a: ICounter, b: ICounter) => {
     return true
 }
 
-export const CounterContext = React.createContext<CounterContextType | null>(null);
+export const DatabaseContext = React.createContext<DatabaseContextType | null>(null);
 
-const CounterContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const DatabaseContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [counters, setCounters] = React.useState<ICounter[]>([]);//als dit update, update de database
 
 
@@ -60,10 +59,10 @@ const CounterContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
 
     return (
-        <CounterContext.Provider value={{ counters, setCounters,insertOrReplaceCounter }}>
+        <DatabaseContext.Provider value={{ counters, setCounters,insertOrReplaceCounter }}>
             {children}
-        </CounterContext.Provider>
+        </DatabaseContext.Provider>
     );
 };
 
-export { CounterContextProvider };
+export {  DatabaseContextProvider };

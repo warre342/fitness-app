@@ -41,7 +41,7 @@ export default function App() {
     const [multipleFoodSelect, setMultipleFoodSelect] = useState<FoodItem[]>([]);
     const chooseFood = (food: any) => {
         if (!multipleFoodSelectBool) {
-            navigation.navigate('counter', [{ food }]);
+            navigation.navigate('counter', [ food ]);
         }
         else if (multipleFoodSelectBool) {
             setMultipleFoodSelect([...multipleFoodSelect, food])
@@ -86,12 +86,16 @@ export default function App() {
     };
 
     const chooseMultipleFoods = () => {
-        if (!multipleFoodSelect) {//wil beginnen met selecten 
+        console.log("chooseMultipleFoods function called")
+        console.log("multipleFoodSelectBool", multipleFoodSelectBool)
+        if (!multipleFoodSelectBool) {//wil beginnen met selecten 
             setMultipleFoodSelectBool(true)
+            console.log(multipleFoodSelectBool)
         }
-        else {//wil eindigen met selecten
+        else if(multipleFoodSelectBool){//wil eindigen met selecten
             setMultipleFoodSelectBool(false)
-            navigation.navigate('counter', { multipleFoodSelect })
+            console.log(multipleFoodSelectBool)
+            navigation.navigate('counter',  multipleFoodSelect )
             setMultipleFoodSelect([])
         }
     }
@@ -226,7 +230,7 @@ export default function App() {
                         }
                     }}>
                         <VStack space={4} alignItems="center">
-                            <Button bgColor="warmGray.100" onPress={chooseMultipleFoods} size="xs">
+                            <Button  bgColor={multipleFoodSelectBool?"warmGray.500": "warmGray.100"} onPress={chooseMultipleFoods} size="xs" >
                                 <Text>Multiple meals</Text>
                             </Button>
                         </VStack>

@@ -5,8 +5,8 @@ BACKEND:
 3. make ending counter for the day possible
 4. make viewing progress with charts possible, make graph per day with line of target goal
 5. put food items in the database
-
-
+6. fix bug that makes it so the first api call is always empty
+7. make api call into food item
 FRONTED: 
 1. make loading screen wait for redirect after loading in index.tsx. this loading is a bug in react native 
 2. change colors
