@@ -11,7 +11,7 @@ export default function useDatabase() {
   useEffect(() => {
     async function loadDataAsync() {
       try {
-        //await database.dropDatabaseTablesAsync()
+        //await database.dropDatabaseTableCounterAsync()
         await database.setupDatabaseAsyncCounters()
         await database.setupCountersAsync()
 

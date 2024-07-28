@@ -17,6 +17,7 @@ const isEqualCounter = (a: ICounter, b: ICounter) => {
 
 export const DatabaseContext = React.createContext<DatabaseContextType | null>(null);
 
+//this file will have context for counters and food items and be responsible for updating them in the database
 const DatabaseContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [counters, setCounters] = React.useState<ICounter[]>([]);//als dit update, update de database
 

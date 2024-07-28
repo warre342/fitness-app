@@ -55,6 +55,39 @@ const getCounters = async () => {
   });
 };
 
+//haal alle foodItems op en return ze
+const getFoodItems = async () => {
+  return new Promise((resolve, reject) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'SELECT * FROM foodItems;',
+          [],
+          (_, { rows: { _array } }) => {
+            resolve(_array); // Resolve the promise with the array of rows
+          },
+          (_, error) => {
+            console.log("DB error load foodItems");
+            console.log(error);
+            reject(error); // Reject the promise with the error
+          }
+        );
+      },
+      (t, error) => {
+        console.log("Transaction error during load foodItems");
+        console.log(error);
+        reject(error); // Reject the promise with the error
+      },
+      (_t, _success) => {
+        console.log("Transaction successful during load foodItems");
+        // Note: Success callback isn't necessary if you're handling success in the query's callback
+      }
+    );
+  });
+};
+
+
+
 //steek een row in de table counters
 const insertCounter = (startOfDay, calories, protein, carbs, fats) => {
   console.log("Starting counter insertion");
@@ -86,15 +119,49 @@ const insertCounter = (startOfDay, calories, protein, carbs, fats) => {
   });
 };
 
+//steek een row in de table foodItems
+const insertFoodItem = (key, name, calories, protein, carbs, fats) => {
+  console.log("Starting counter insertion");
+
+  return new Promise((resolve, reject) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'INSERT OR REPLACE INTO foodItems (key, name, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?);',
+          [key, name, calories, protein, carbs, fats],
+          (_, result) => {
+            console.log("foodItem inserted successfully");
+            resolve(result);
+          },
+          (_, error) => {
+            console.log("DB error inserting foodItem");
+            reject(error);
+          }
+        );
+      },
+      (t, error) => {
+        console.log("Transaction error during foodItem insertion");
+        reject(error);
+      },
+      (_t, _success) => {
+        console.log("Transaction successful during foodItem insertion");
+      }
+    );
+  });
+};
+
+
+
 //drop alle tables
-const dropDatabaseTablesAsync = async () => {
+const dropDatabaseTableCounterAsync = async () => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
         'drop table counters;',
         [],
         (_, result) => { resolve(result) },
-        (_, error) => { console.log("error dropping counters table"); reject(error)
+        (_, error) => {
+          console.log("error dropping counters table"); reject(error)
         }
       )
     })
@@ -111,11 +178,11 @@ const setupDatabaseAsyncCounters = async () => {
           'CREATE TABLE IF NOT EXISTS counters (startOfDay TEXT PRIMARY KEY NOT NULL, calories REAL NOT NULL, protein REAL NOT NULL, carbs REAL NOT NULL, fats REAL NOT NULL);',
           [],
           (_, result) => {
-            console.log("Database tables created successfully");
+            console.log("Database table counter created successfully");
             resolve(result);
           },
           (_, error) => {
-            console.log("DB error creating tables");
+            console.log("DB error creating table counter");
             reject(error);
           }
         );
@@ -126,6 +193,34 @@ const setupDatabaseAsyncCounters = async () => {
     console.log("Error during data insertion:", error);
   }
 };
+
+
+//maak de table foodItems aan als die nog niet bestaat
+const setupDatabaseAsyncFoodItems = async () => {
+  console.log("Starting table creation");
+  try {
+    await new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'CREATE TABLE IF NOT EXISTS foodItems (key INTEGER PRIMARY KEY NOT NULL, name TEXT NOT NULL,calories REAL NOT NULL,  protein REAL NOT NULL, carbs REAL NOT NULL, fats REAL NOT NULL);',
+          [],
+          (_, result) => {
+            console.log("Database table foodItems created successfully");
+            resolve(result);
+          },
+          (_, error) => {
+            console.log("DB error creating table foodItems");
+            reject(error);
+          }
+        );
+      });
+    });
+    console.log("Data insertion finished successfully");
+  } catch (error) {
+    console.log("Error during data insertion:", error);
+  }
+};
+
 
 //steek een default waarde in de counters tabel, als de waarde er al in staat steek er niets in
 const setupCountersAsync = async () => {
@@ -191,12 +286,80 @@ const setupCountersAsync = async () => {
   }
 };
 
+const setupFoodItemsAsync = async () => {
+  console.log("Starting foodItems setup");
+
+  try {
+    const exists = await new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT COUNT(*) as count FROM foodItems WHERE key = ?',
+          [1],
+          (_, { rows: { _array } }) => {
+            if (_array.length > 0 && _array[0].count > 0) {
+              console.log("foodItem entry already exists");
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          },
+          (_, error) => {
+            console.log("DB error checking for existing foodItems entry");
+            console.log(error);
+            reject(error);
+          }
+        );
+      });
+    });
+
+    if (!exists) {
+      await new Promise((resolve, reject) => {
+        db.transaction(
+          tx => {
+            tx.executeSql(
+              'INSERT OR REPLACE INTO foodItems (key, name, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?);',
+              [1, "De poes van robin", 10750, 0, 0, 0],
+              (_, result) => {
+                console.log("foodItems setup successful");
+                resolve(result);
+              },
+              (_, error) => {
+                console.log("DB error inserting foodItems");
+                console.log(error);
+                reject(error);
+              }
+            );
+          },
+          (t, error) => {
+            console.log("Transaction error during foodItems setup");
+            console.log(error);
+            reject(error);
+          },
+          (t, success) => {
+            console.log("Transaction successful during foodItems setup");
+            resolve(success);
+          }
+        );
+      });
+    } else {
+      console.log("foodItems setup skipped as entry already exists");
+    }
+  } catch (error) {
+    console.log("Error during foodItems setup:", error);
+  }
+};
+
 export const database = {
   getCounters,
   insertCounter,
   setupDatabaseAsyncCounters,
   setupCountersAsync,
-  dropDatabaseTablesAsync,
+  dropDatabaseTableCounterAsync,//currently only for counters
+
+  getFoodItems,
+  insertFoodItem,
+  setupDatabaseAsyncFoodItems,
+  setupFoodItemsAsync
 }
 
 //   vb: { startOfDay:"15/7/2024" , calories: 0, protein : 0,carbs:0, fats:0 },
