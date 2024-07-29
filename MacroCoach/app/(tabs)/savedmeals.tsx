@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { NativeBaseProvider, Box, Button, Flex, ScrollView, Divider, Text, Input, HStack, VStack, Wrap, Spacer, Pressable } from "native-base";
-import useFoodData from "@/hooks/useFoodData";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
 import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
 import { ParamListBase } from "@react-navigation/native";
+import { DatabaseContext } from "@/context/databaseContext";
+import { DatabaseContextType } from "@/@types/databaseContextType";
 
 interface FoodItem {
     key: string;
@@ -26,10 +27,24 @@ export default function App() {
     };
 
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
-    const { foodData, setFoodData } = useFoodData();//all food cards
+
+    const databaseContext = useContext(DatabaseContext);//database
+    const { foodItems, setFoodItems } = databaseContext as DatabaseContextType;
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {//default values inserten
+        foodItems.forEach(x=> {if(x.key==2 ||x.key==3 ||x.key==4){setCount(count+1)} })
+        if(count!=3){
+            setFoodItems([...foodItems,
+            { key: 2, name: 'milk', calories: 470, protein: 34, carbs: 96, fats: 32 },
+            //{ key: 2, name: 'bread', calories: 200, protein : 5 , carbs:0, fats:0 },
+            { key: 3, name: 'egg', calories: 74, protein: 6.3, carbs: 0.7, fats: 5.2 },
+            { key: 4, name: 'de poes van robin', calories: 10755.6, protein: 0, carbs: 0, fats: 0 }])
+        }
+    }, [])
 
     const [inputFood, setInputFood] = useState({//food that is typed in input
-        key: foodData.length > 0 ? foodData[foodData.length - 1].key + 1 : 1,
+        key: foodItems.length > 0 ? foodItems[foodItems.length - 1].key + 1 : 1,
         name: '',
         protein: 0,
         calories: 0,
@@ -41,7 +56,7 @@ export default function App() {
     const [multipleFoodSelect, setMultipleFoodSelect] = useState<FoodItem[]>([]);
     const chooseFood = (food: any) => {
         if (!multipleFoodSelectBool) {
-            navigation.navigate('counter', [ food ]);
+            navigation.navigate('counter', [food]);
         }
         else if (multipleFoodSelectBool) {
             setMultipleFoodSelect([...multipleFoodSelect, food])
@@ -50,7 +65,7 @@ export default function App() {
 
     const addProduct = () => {
         // Add the new food item to foodData array
-        setFoodData([...foodData, inputFood]);
+        setFoodItems([...foodItems, inputFood]);
 
         // Reset the food state
         setInputFood({
@@ -82,7 +97,7 @@ export default function App() {
     };
 
     const removeLastProduct = () => {
-        setFoodData(foodData.slice(0, -1));
+        setFoodItems(foodItems.slice(0, -1));
     };
 
     const chooseMultipleFoods = () => {
@@ -92,14 +107,14 @@ export default function App() {
             setMultipleFoodSelectBool(true)
             console.log(multipleFoodSelectBool)
         }
-        else if(multipleFoodSelectBool){//wil eindigen met selecten
+        else if (multipleFoodSelectBool) {//wil eindigen met selecten
             setMultipleFoodSelectBool(false)
             console.log(multipleFoodSelectBool)
-            navigation.navigate('counter',  multipleFoodSelect )
+            navigation.navigate('counter', multipleFoodSelect)
             setMultipleFoodSelect([])
         }
     }
-    const redirectScanner = () =>{
+    const redirectScanner = () => {
         navigation.navigate("barcodeScanner")
     }
 
@@ -122,7 +137,7 @@ export default function App() {
                                 //CARDS
                             }
                             <Flex direction="row" flexWrap="wrap" justifyContent="center" >
-                                {foodData.map((food) => {
+                                {foodItems.map((food) => {
                                     return (
                                         <Pressable onPress={() => chooseFood(food)} key={food.key}>
 
@@ -165,6 +180,10 @@ export default function App() {
                                 })}</Flex>
                         </VStack>
                     </Box>
+                    <Button>clear cards</Button>
+
+
+
                     {
                         //INPUT FIELD for adding a card
                     }
@@ -180,7 +199,7 @@ export default function App() {
                             <HStack space={2}>
                                 <Text fontWeight="bold" >Add product</Text>
                             </HStack>
-                            <HStack><Divider  maxWidth={300} bg={{
+                            <HStack><Divider maxWidth={300} bg={{
                                 linearGradient: {
                                     colors: ['violet.900', 'blue.500'],
                                     start: [0, 0],
@@ -208,12 +227,12 @@ export default function App() {
                                 <Input flex={2} variant="underlined" value={inputFood.fats === 0 ? '' : inputFood.fats.toString()} onChangeText={handleFats} keyboardType="numeric" />
                             </HStack>
                             <HStack alignItems="center" space={2}>
-                            <Button bgColor="warmGray.100" size="xs" onPress={addProduct}>
-                                <Text>Add</Text>
-                            </Button>
-                            <Button bgColor="warmGray.100" size="xs" onPress={redirectScanner}>
-                                <Text>SCANN</Text>
-                            </Button>
+                                <Button bgColor="warmGray.100" size="xs" onPress={addProduct}>
+                                    <Text>Add</Text>
+                                </Button>
+                                <Button bgColor="warmGray.100" size="xs" onPress={redirectScanner}>
+                                    <Text>SCANN</Text>
+                                </Button>
                             </HStack>
 
 
@@ -230,7 +249,7 @@ export default function App() {
                         }
                     }}>
                         <VStack space={4} alignItems="center">
-                            <Button  bgColor={multipleFoodSelectBool?"warmGray.500": "warmGray.100"} onPress={chooseMultipleFoods} size="xs" >
+                            <Button bgColor={multipleFoodSelectBool ? "warmGray.500" : "warmGray.100"} onPress={chooseMultipleFoods} size="xs" >
                                 <Text>Multiple meals</Text>
                             </Button>
                         </VStack>

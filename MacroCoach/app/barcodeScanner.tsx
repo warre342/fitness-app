@@ -54,6 +54,8 @@ export default function App() {
         console.log("filtered jsondata", JSONdata, "\n")
 
     }, [JSONdata])
+
+
     // What happens when we scan the bar code
     const handleBarCodeScanned = ({ type, data }: any) => {
         setScanned(true);
@@ -67,7 +69,6 @@ export default function App() {
                 });
 
                 //console.log("Unfiltered JSON data: ", response.data);
-                setObtainedData(true)
                 // Filter data and update state
                 const filteredData: ProductData = {
                     product: {
@@ -84,6 +85,8 @@ export default function App() {
                 };
                 // Update the state with the filtered data
                 setJSONData(filteredData);
+                setObtainedData(true)
+
             }
             catch (error) {
                 console.error('Error:', error);
@@ -94,7 +97,6 @@ export default function App() {
         //console.log("filtered jsondata", JSONdata, "\n")
         console.log('Type: ' + type + '\nData: ' + data + ".")
     }
-
 
     // Check permissions and return the screens
     if (hasPermission === null) {
@@ -118,6 +120,14 @@ export default function App() {
     //modal
     const [showModal, setShowModal] = useState(false);
 
+    const addFoodItem= () => {
+        let prot= JSONdata?.product?.nutriments?.["proteins_100g"] ?? "/"
+        let carbs= JSONdata?.product?.nutriments?.["carbohydrates_100g"] ?? "/"
+        let fats=JSONdata?.product?.nutriments?.["fat_100g"] ?? "/"
+        let cals=JSONdata?.product?.nutriments?.["energy-kcal_100g"] ?? "/"               
+
+        
+    }
     // Return the View
     return (
         <ScrollView flex={1} h="100%">
@@ -228,6 +238,7 @@ export default function App() {
                                         </Button>
                                         <Button onPress={() => {
                                             setShowModal(false);
+                                            addFoodItem();
                                         }}>
                                             Save
                                         </Button>

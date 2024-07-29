@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeBaseProvider, Box, Button, Divider } from "native-base";
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { DatabaseContext } from '@/context/databaseContext';
-import { DatabaseContextType } from '@/@types/counter';
+import { DatabaseContextType } from '@/@types/databaseContextType';
 import { FoodItem } from '@/@types/foodItem';
 
 const HomeScreen = () => {
@@ -55,10 +55,10 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Daily Counter</Text>
-      <Text style={styles.counter}>calorie count: {counters.at(counters.length - 1)?.calories.toFixed(2)}</Text>
-      <Text style={styles.counter}>protein count: {counters.at(counters.length - 1)?.protein.toFixed(2)}g</Text>
-      <Text style={styles.counter}>carbohydrate count: {counters.at(counters.length - 1)?.carbs.toFixed(2)}g</Text>
-      <Text style={styles.counter}>fat count: {counters.at(counters.length - 1)?.fats.toFixed(2)}g</Text>
+      <Text style={styles.counter}>calorie count: {counters.at(counters.length - 1)?.calories.toFixed(2).replace(/\.00$/, '')}</Text>
+      <Text style={styles.counter}>protein count: {counters.at(counters.length - 1)?.protein.toFixed(2).replace(/\.00$/, '')}g</Text>
+      <Text style={styles.counter}>carbohydrate count: {counters.at(counters.length - 1)?.carbs.toFixed(2).replace(/\.00$/, '')}g</Text>
+      <Text style={styles.counter}>fat count: {counters.at(counters.length - 1)?.fats.toFixed(2).replace(/\.00$/, '')}g</Text>
       <Button onPress={() => insertOrReplaceCounter({ startOfDay: "15/7/2024", calories: 0, protein: 0, carbs: 0, fats: 0 })}>Clear counter</Button>
 
     </View>

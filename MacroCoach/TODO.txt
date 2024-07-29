@@ -1,8 +1,8 @@
 BACKEND: 
 1. Add barcode scanner
-2. fix adding onto counter
+2. FIXED, fix adding onto counter
 2. make food cards deleteable
-3. make ending counter for the day possible
+3. FIXED, make ending counter for the day possible
 4. make viewing progress with charts possible, make graph per day with line of target goal
 5. put food items in the database
 6. fix bug that makes it so the first api call is always empty
@@ -17,13 +17,14 @@ FRONTED:
 7. most commen meals under counter
 
 Doing right now:
-1. Add barcode scanner
+database fooditems
 
 
 
 
 
-foodfacts api, things to filter 
-nutrient_levels: geeft aan hoe veel fats, salt, satureated fat en sugars er in zitten op levels van high medium en low
-nutriments: geeft de callories en alle andere good shit aan
-nutrient_levels_tags: verbose over nutrient levels
+
+foodfacts api, things to filter:
+    nutrient_levels: geeft aan hoe veel fats, salt, satureated fat en sugars er in zitten op levels van high medium en low
+    nutriments: geeft de callories en alle andere good shit aan
+    nutrient_levels_tags: verbose over nutrient levels

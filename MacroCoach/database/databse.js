@@ -89,8 +89,8 @@ const getFoodItems = async () => {
 
 
 //steek een row in de table counters
-const insertCounter = (startOfDay, calories, protein, carbs, fats) => {
-  console.log("Starting counter insertion");
+const insertCounter = ({ startOfDay, calories, protein, carbs, fats }) => {
+  console.log("Starting counter insertion with object parameters");
 
   return new Promise((resolve, reject) => {
     db.transaction(
@@ -103,13 +103,13 @@ const insertCounter = (startOfDay, calories, protein, carbs, fats) => {
             resolve(result);
           },
           (_, error) => {
-            console.log("DB error inserting counter");
+            console.log("DB error inserting counter", error);
             reject(error);
           }
         );
       },
       (t, error) => {
-        console.log("Transaction error during counter insertion");
+        console.log("Transaction error during counter insertion", error);
         reject(error);
       },
       (_t, _success) => {
@@ -119,9 +119,10 @@ const insertCounter = (startOfDay, calories, protein, carbs, fats) => {
   });
 };
 
+
 //steek een row in de table foodItems
-const insertFoodItem = (key, name, calories, protein, carbs, fats) => {
-  console.log("Starting counter insertion");
+const insertFoodItem = ({key, name, calories, protein, carbs, fats}) => {
+  console.log("Starting fooditem insertion");
 
   return new Promise((resolve, reject) => {
     db.transaction(
@@ -168,9 +169,24 @@ const dropDatabaseTableCounterAsync = async () => {
   })
 }
 
+const dropDatabaseTableFoodItemsAsync = async () => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'drop table foodItems;',
+        [],
+        (_, result) => { resolve(result) },
+        (_, error) => {
+          console.log("error dropping foodItems table"); reject(error)
+        }
+      )
+    })
+  })
+}
+
 //maak de table counters aan als die nog niet bestaat
-const setupDatabaseAsyncCounters = async () => {
-  console.log("Starting table creation");
+const setupTableCountersAsync = async () => {
+  console.log("Starting counter table creation");
   try {
     await new Promise((resolve, reject) => {
       db.transaction(tx => {
@@ -188,16 +204,16 @@ const setupDatabaseAsyncCounters = async () => {
         );
       });
     });
-    console.log("Data insertion finished successfully");
+    console.log("counter table created successfully");
   } catch (error) {
-    console.log("Error during data insertion:", error);
+    console.log("Error during counter table creation :", error);
   }
 };
 
 
 //maak de table foodItems aan als die nog niet bestaat
-const setupDatabaseAsyncFoodItems = async () => {
-  console.log("Starting table creation");
+const setupTableFoodItemsAsync = async () => {
+  console.log("Starting foodItem table creation");
   try {
     await new Promise((resolve, reject) => {
       db.transaction(tx => {
@@ -215,9 +231,9 @@ const setupDatabaseAsyncFoodItems = async () => {
         );
       });
     });
-    console.log("Data insertion finished successfully");
+   console.log("fooditem table created successfully");
   } catch (error) {
-    console.log("Error during data insertion:", error);
+    console.log("Error during fooditem table creation :", error);
   }
 };
 
@@ -288,7 +304,6 @@ const setupCountersAsync = async () => {
 
 const setupFoodItemsAsync = async () => {
   console.log("Starting foodItems setup");
-
   try {
     const exists = await new Promise((resolve, reject) => {
       db.transaction(tx => {
@@ -352,14 +367,15 @@ const setupFoodItemsAsync = async () => {
 export const database = {
   getCounters,
   insertCounter,
-  setupDatabaseAsyncCounters,
+  setupTableCountersAsync,
   setupCountersAsync,
   dropDatabaseTableCounterAsync,//currently only for counters
 
   getFoodItems,
   insertFoodItem,
-  setupDatabaseAsyncFoodItems,
-  setupFoodItemsAsync
+  setupTableFoodItemsAsync,
+  setupFoodItemsAsync,
+  dropDatabaseTableFoodItemsAsync
 }
 
 //   vb: { startOfDay:"15/7/2024" , calories: 0, protein : 0,carbs:0, fats:0 },
