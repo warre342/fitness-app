@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeBaseProvider, Box, Button, Divider } from "native-base";
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { DatabaseContext } from '@/context/databaseContext';
 import { DatabaseContextType } from '@/@types/databaseContextType';
 import { FoodItem } from '@/@types/foodItem';
+import { FoodItemChangesContext } from '@/context/foodItemChangesContext';
+import { FoodItemChangesContextType } from '@/@types/foodItemChangesContextType';
 
 const HomeScreen = () => {
 
@@ -17,6 +19,10 @@ const HomeScreen = () => {
 
   const databaseContext = useContext(DatabaseContext);//database
   const { counters, setCounters, insertOrReplaceCounter } = databaseContext as DatabaseContextType;
+
+
+  const foodItemChangesContext = useContext(FoodItemChangesContext);//database
+  const { addCount, setAddCount } = foodItemChangesContext as FoodItemChangesContextType;
 
   useEffect(() => {
     console.log("changed route.params", route.params)
@@ -50,6 +56,12 @@ const HomeScreen = () => {
       }));
     }
   }, [foodArray]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setAddCount(0); // Reset badge count when this screen is focused
+    }, [])
+  );
 
   console.log(counters, "local counters")
   return (

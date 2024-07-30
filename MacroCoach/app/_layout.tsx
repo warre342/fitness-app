@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import useDatabase from '@/hooks/useDatabaseLoading';
 import { DatabaseContextProvider } from '../context/databaseContext'
+import { FoodItemChangesContextProvider } from '../context/foodItemChangesContext'
 import { NativeBaseProvider } from 'native-base';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -20,7 +21,7 @@ export default function RootLayout() {
   });
 
   const isDBLoadingComplete = useDatabase();
-  console.log("database:",isDBLoadingComplete,", fonts:", loaded)
+  console.log("database:", isDBLoadingComplete, ", fonts:", loaded)
 
   useEffect(() => {
     if (loaded && isDBLoadingComplete) {
@@ -35,12 +36,14 @@ export default function RootLayout() {
   return (
     <NativeBaseProvider>
       <DatabaseContextProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-        </ThemeProvider>
+        <FoodItemChangesContextProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+          </ThemeProvider>
+        </FoodItemChangesContextProvider>
       </DatabaseContextProvider>
     </NativeBaseProvider>
 

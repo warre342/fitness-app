@@ -6,3 +6,4 @@ export type DatabaseContextType= {
     foodItems: FoodItem[];
     setFoodItems: (foodItems: FoodItem[]) => void;
 };
+

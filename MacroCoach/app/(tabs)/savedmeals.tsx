@@ -7,6 +7,8 @@ import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/n
 import { ParamListBase } from "@react-navigation/native";
 import { DatabaseContext } from "@/context/databaseContext";
 import { DatabaseContextType } from "@/@types/databaseContextType";
+import { FoodItemChangesContext } from "@/context/foodItemChangesContext";
+import { FoodItemChangesContextType } from "@/@types/foodItemChangesContextType";
 
 interface FoodItem {
     key: string;
@@ -17,6 +19,21 @@ interface FoodItem {
     fats: number;
 }
 
+/*
+ADDING ITEMS: 
+momenteel: 
+    er wordt op card geklikt 
+    object van die card wordt geroute naar counter.tsx
+    als de routing naar counter.tsx wordt aangepast wordt het object toegevoegd aan foodArray[]
+    als foodarray wordt aangepast dan wordt het foodarray opgeteld bij laatste counter en wordt foodArray leeg
+
+
+wat ik wil: 
+    er wordt op card gelikt
+    object van die card wordt opgeteld bij de laatste counter
+    addCount +=1
+    als er geklikt wordt op counter.tsx => addCount =0
+*/
 
 export default function App() {
     //config
@@ -29,21 +46,9 @@ export default function App() {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const databaseContext = useContext(DatabaseContext);//database
-    const { foodItems, setFoodItems } = databaseContext as DatabaseContextType;
- /* scuffed code
-    const [count, setCount] = useState(0);
+    const { counters, setCounters, insertOrReplaceCounter, foodItems, setFoodItems } = databaseContext as DatabaseContextType;
 
-    useEffect(() => {//default values inserten
-        foodItems.forEach(x=> {if(x.key==2 ||x.key==3 ||x.key==4){setCount(count+1)} })//make sure you dont double add them
-        if(count<=3){
-            setFoodItems([...foodItems,
-            { key: 2, name: 'milk', calories: 470, protein: 34, carbs: 96, fats: 32 },
-            //{ key: 2, name: 'bread', calories: 200, protein : 5 , carbs:0, fats:0 },
-            { key: 3, name: 'egg', calories: 74, protein: 6.3, carbs: 0.7, fats: 5.2 },
-            { key: 4, name: 'de poes van robin', calories: 10755.6, protein: 0, carbs: 0, fats: 0 }])
-        }
-    }, [])
-*/ 
+
     const [inputFood, setInputFood] = useState({//food that is typed in input
         key: foodItems.length > 0 ? foodItems[foodItems.length - 1].key + 1 : 1,
         name: '',
@@ -55,14 +60,32 @@ export default function App() {
 
     const [multipleFoodSelectBool, setMultipleFoodSelectBool] = useState(false);
     const [multipleFoodSelect, setMultipleFoodSelect] = useState<FoodItem[]>([]);
+
+    const foodItemChangesContext = useContext(FoodItemChangesContext);//database
+    const { addCount, setAddCount } = foodItemChangesContext as FoodItemChangesContextType;
+
     const chooseFood = (food: any) => {
         if (!multipleFoodSelectBool) {
-            navigation.navigate('counter', [food]);
+            setCounters(counters.map((counter, index) => { //voeg food toe aan laatse counter
+                if (index === counters.length - 1) {
+                    return {
+                        ...counter,
+                        calories: counter.calories + food.calories,
+                        protein: counter.protein + food.protein,
+                        carbs: counter.carbs + food.carbs,
+                        fats: counter.fats + food.fats
+                    };
+                } else {
+                    return counter;
+                }
+            }));
+            setAddCount(addCount+1)
         }
         else if (multipleFoodSelectBool) {
             setMultipleFoodSelect([...multipleFoodSelect, food])
         }
     }
+
 
     const addProduct = () => {
         // Add the new food item to foodData array

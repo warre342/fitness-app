@@ -22,9 +22,9 @@ database fooditems
 
 TODO:
 graph van progress over verschillende dagen 
-lijst van alles gegeten => verwijderen + overzicht
+lijst van alles gegeten op counter menu => verwijderen + overzicht
 extentable cards for amount of food
-product gedrukt => animatie bij home tab == plusje. Niet switchen dus
+DONE, product gedrukt => animatie bij home tab == plusje. Niet switchen dus
 callo goal zetten => stel 500 over van de 3k rood maken of geel. zet er ook bij hoeveel over
 
 foodfacts api, things to filter:
