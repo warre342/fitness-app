@@ -79,7 +79,7 @@ const DatabaseContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         database.getCounters().then((rowsDB: FoodItem[]) => {
             const keys = findDifferingKeys(rowsDB, foodItems)
 
-            if (foodItems.length > rowsDB.length) {
+            if (foodItems.length > rowsDB.length) {//item toegevoegd
                 for (let key of keys) {
                     for (let food of foodItems) {
                         if (food.key == key) { database.insertFoodItem(food) }
@@ -87,9 +87,13 @@ const DatabaseContextProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 }
 
             }
-            else if (foodItems.length < rowsDB.length) {
-                //remove, not implemented
-                console.log("remove not implemented")
+            else if (foodItems.length < rowsDB.length) {//item verwijderd
+                for (let key of keys) {
+                    for (let food of rowsDB) {
+                        if (food.key == key) { database.deleteFoodItem(food.key) }
+                    }
+                }
+
             }
 
             else if (foodItems.length == rowsDB.length) {

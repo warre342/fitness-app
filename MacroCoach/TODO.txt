@@ -12,7 +12,7 @@ FRONTED:
 2. change colors
 3. FIXED, make the dividers work => had to be in a box or hstack no clue as to what determines which element to put in
 4. add native base for counter
-5. add remove specific foodcard
+5. add remove specific foodcard , implement removing from database
 6. make viewing progress with charts possible, make graph per day with line of target goal
 7. most commen meals under counter
 
@@ -24,8 +24,11 @@ TODO:
 graph van progress over verschillende dagen 
 lijst van alles gegeten op counter menu => verwijderen + overzicht
 extentable cards for amount of food
-DONE, product gedrukt => animatie bij home tab == plusje. Niet switchen dus
 callo goal zetten => stel 500 over van de 3k rood maken of geel. zet er ook bij hoeveel over
+
+    DONE, product gedrukt => animatie bij home tab == plusje. Niet switchen dus
+
+
 
 foodfacts api, things to filter:
     nutrient_levels: geeft aan hoe veel fats, salt, satureated fat en sugars er in zitten op levels van high medium en low

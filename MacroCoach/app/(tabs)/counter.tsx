@@ -13,7 +13,7 @@ const HomeScreen = () => {
 
   const route = useRoute<any>();
   //console.log("route", route.params);
-  const [foodArray, setFoodArray] = useState<FoodItem[]>([{ key: 0, name: "", calories: 0, protein: 0, carbs: 0, fats: 0 }]);
+  //const [foodArray, setFoodArray] = useState<FoodItem[]>([{ key: 0, name: "", calories: 0, protein: 0, carbs: 0, fats: 0, prefered_size:100 }]);
   //console.log("foodarray", foodArray);
 
 
@@ -23,7 +23,7 @@ const HomeScreen = () => {
 
   const foodItemChangesContext = useContext(FoodItemChangesContext);//database
   const { addCount, setAddCount } = foodItemChangesContext as FoodItemChangesContextType;
-
+/*
   useEffect(() => {
     console.log("changed route.params", route.params)
     if (route.params !== undefined && route.params[0]) {
@@ -56,7 +56,7 @@ const HomeScreen = () => {
       }));
     }
   }, [foodArray]);
-
+*/
   useFocusEffect(
     React.useCallback(() => {
       setAddCount(0); // Reset badge count when this screen is focused

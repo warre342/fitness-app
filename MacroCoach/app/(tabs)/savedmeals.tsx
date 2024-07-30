@@ -1,6 +1,7 @@
+import { FoodCard } from '../../components/FoodCard';
 import React, { useContext, useEffect, useState } from "react";
 
-import { NativeBaseProvider, Box, Button, Flex, ScrollView, Divider, Text, Input, HStack, VStack, Wrap, Spacer, Pressable } from "native-base";
+import { NativeBaseProvider, Box, Button, Flex, ScrollView, Divider, Text, Input, HStack, VStack, Image, Wrap, Spacer, Pressable } from "native-base";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
 import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
@@ -9,15 +10,9 @@ import { DatabaseContext } from "@/context/databaseContext";
 import { DatabaseContextType } from "@/@types/databaseContextType";
 import { FoodItemChangesContext } from "@/context/foodItemChangesContext";
 import { FoodItemChangesContextType } from "@/@types/foodItemChangesContextType";
+import { FoodItem } from '@/@types/foodItem';
 
-interface FoodItem {
-    key: string;
-    name: string;
-    calories: number;
-    protein: number;
-    carbs: number;
-    fats: number;
-}
+
 
 /*
 ADDING ITEMS: 
@@ -55,35 +50,33 @@ export default function App() {
         protein: 0,
         calories: 0,
         carbs: 0,
-        fats: 0
+        fats: 0,
+        prefered_size: 50
     });
 
-    const [multipleFoodSelectBool, setMultipleFoodSelectBool] = useState(false);
-    const [multipleFoodSelect, setMultipleFoodSelect] = useState<FoodItem[]>([]);
 
     const foodItemChangesContext = useContext(FoodItemChangesContext);//database
     const { addCount, setAddCount } = foodItemChangesContext as FoodItemChangesContextType;
 
-    const chooseFood = (food: any) => {
-        if (!multipleFoodSelectBool) {
-            setCounters(counters.map((counter, index) => { //voeg food toe aan laatse counter
-                if (index === counters.length - 1) {
-                    return {
-                        ...counter,
-                        calories: counter.calories + food.calories,
-                        protein: counter.protein + food.protein,
-                        carbs: counter.carbs + food.carbs,
-                        fats: counter.fats + food.fats
-                    };
-                } else {
-                    return counter;
-                }
-            }));
-            setAddCount(addCount+1)
-        }
-        else if (multipleFoodSelectBool) {
-            setMultipleFoodSelect([...multipleFoodSelect, food])
-        }
+    const chooseFood = (food: FoodItem, size:number) => {
+        setCounters(counters.map((counter, index) => { //voeg food toe aan laatse counter
+            if (index === counters.length - 1) {
+                return {
+                    ...counter,
+                    calories: counter.calories + (food.calories/100)*(size),
+                    protein: counter.protein + (food.protein/100)*(size),
+                    carbs: counter.carbs + (food.carbs/100)*(size),
+                    fats: counter.fats + (food.fats/100)*(size)
+                };
+            } else {
+                return counter;
+            }
+        }));
+        setAddCount(addCount + 1)
+    }
+
+    const deleteFood = (key: number) => {
+        setFoodItems(foodItems.filter(food => food.key !== key))
     }
 
 
@@ -98,7 +91,8 @@ export default function App() {
             protein: 0,
             calories: 0,
             carbs: 0,
-            fats: 0
+            fats: 0,
+            prefered_size: 50
         });
     };
 
@@ -119,25 +113,14 @@ export default function App() {
     const handleFats = (text: string) => {
         setInputFood((prevFood) => ({ ...prevFood, fats: parseInt(text, 10) || 0 }));
     };
+    const handlePrefered_size = (text: string) => {
+        setInputFood((prevFood) => ({ ...prevFood, prefered_size: parseInt(text, 10) || 100 }));
+    };
 
     const removeLastProduct = () => {
         setFoodItems(foodItems.slice(0, -1));
     };
 
-    const chooseMultipleFoods = () => {
-        console.log("chooseMultipleFoods function called")
-        console.log("multipleFoodSelectBool", multipleFoodSelectBool)
-        if (!multipleFoodSelectBool) {//wil beginnen met selecten 
-            setMultipleFoodSelectBool(true)
-            console.log(multipleFoodSelectBool)
-        }
-        else if (multipleFoodSelectBool) {//wil eindigen met selecten
-            setMultipleFoodSelectBool(false)
-            console.log(multipleFoodSelectBool)
-            navigation.navigate('counter', multipleFoodSelect)
-            setMultipleFoodSelect([])
-        }
-    }
     const redirectScanner = () => {
         navigation.navigate("barcodeScanner")
     }
@@ -163,49 +146,11 @@ export default function App() {
                             <Flex direction="row" flexWrap="wrap" justifyContent="center" >
                                 {foodItems.map((food) => {
                                     return (
-                                        <Pressable onPress={() => chooseFood(food)} key={food.key}>
-
-                                            <Box key={food.key}
-                                                p="0"
-                                                bg={{
-                                                    linearGradient: {
-                                                        colors: ['blue.500', 'pink.600'],
-                                                        start: [0, 5, 1],
-                                                        end: [0.5, 3, 1]
-                                                    }
-                                                }}
-
-                                                rounded="md"
-                                                shadow={5}
-                                                _text={{
-                                                    fontSize: 'md',
-                                                    fontWeight: 'medium',
-                                                    color: 'warmGray.50',
-                                                    letterSpacing: 'lg',
-                                                }} mx={2} my={2} >
-
-                                                <Flex direction="row" h="58" p="4">
-                                                    {food.name}
-                                                    <Divider bg="success.500" thickness="2" mx="2" orientation="vertical" />
-
-                                                    {food.calories}
-                                                    <Divider bg="success.500" thickness="2" mx="2" orientation="vertical" />
-
-                                                    {food.protein}g
-                                                    <Divider bg="success.500" thickness="2" mx="2" orientation="vertical" />
-                                                    {food.carbs}g
-                                                    <Divider bg="success.500" thickness="2" mx="2" orientation="vertical" />
-                                                    {food.fats}g
-
-                                                </Flex>
-                                            </Box>
-                                        </Pressable>
+                                        <FoodCard chooseFood={chooseFood} food={food} deleteFood={deleteFood} />
                                     )
                                 })}</Flex>
                         </VStack>
                     </Box>
-
-
 
                     {
                         //INPUT FIELD for adding a card
@@ -229,74 +174,70 @@ export default function App() {
                                     end: [1, 0]
                                 }
                             }} /></HStack>
+
                             <HStack alignItems="center" space={2}>
                                 <Text flex={1} >Name: </Text>
-                                <Input flex={2} variant="underlined" value={inputFood.name} onChangeText={handleName} />
+                                <Input flex={2} variant="underlined" placeholder="..." value={inputFood.name} onChangeText={handleName} />
                             </HStack>
                             <HStack alignItems="center" space={2}>
-                                <Text flex={1} >calories: </Text>
-                                <Input flex={2} variant="underlined" value={inputFood.calories === 0 ? '' : inputFood.calories.toString()} onChangeText={handleCalories} keyboardType="numeric" />
+                                <Text flex={1} >calories/100g: </Text>
+                                <Input flex={2} variant="underlined" placeholder="0g" value={inputFood.calories === 0 ? '' : inputFood.calories.toString()} onChangeText={handleCalories} keyboardType="numeric" />
                             </HStack>
                             <HStack alignItems="center" space={2}>
-                                <Text flex={1} >Protein: </Text>
-                                <Input flex={2} variant="underlined" value={inputFood.protein === 0 ? '' : inputFood.protein.toString()} onChangeText={handleProtein} keyboardType="numeric" />
+                                <Text flex={1} >Protein/100g: </Text>
+                                <Input flex={2} variant="underlined" placeholder="0g" value={inputFood.protein === 0 ? '' : inputFood.protein.toString()} onChangeText={handleProtein} keyboardType="numeric" />
                             </HStack>
                             <HStack alignItems="center" space={2}>
-                                <Text flex={1} >carbs: </Text>
-                                <Input flex={2} variant="underlined" value={inputFood.carbs === 0 ? '' : inputFood.carbs.toString()} onChangeText={handleCarbs} keyboardType="numeric" />
+                                <Text flex={1} >carbs/100g: </Text>
+                                <Input flex={2} variant="underlined" placeholder="0g" value={inputFood.carbs === 0 ? '' : inputFood.carbs.toString()} onChangeText={handleCarbs} keyboardType="numeric" />
                             </HStack>
                             <HStack alignItems="center" space={2}>
-                                <Text flex={1} >fats: </Text>
-                                <Input flex={2} variant="underlined" value={inputFood.fats === 0 ? '' : inputFood.fats.toString()} onChangeText={handleFats} keyboardType="numeric" />
+                                <Text flex={1} >fats/100g: </Text>
+                                <Input flex={2} variant="underlined" placeholder="0g" value={inputFood.fats === 0 ? '' : inputFood.fats.toString()} onChangeText={handleFats} keyboardType="numeric" />
                             </HStack>
                             <HStack alignItems="center" space={2}>
-                                <Button bgColor="warmGray.100" size="xs" onPress={addProduct}>
+                                <Text flex={1} >Prefered Serving size: </Text>
+                                <Input flex={2} variant="underlined" placeholder="50g" value={inputFood.prefered_size === 50 ? '' : inputFood.prefered_size.toString()} onChangeText={handlePrefered_size} />
+                            </HStack>
+                            <HStack alignItems="center" space={2}>
+                                <Button size="xs" onPress={addProduct}>
                                     <Text>Add</Text>
                                 </Button>
-                                <Button bgColor="warmGray.100" size="xs" onPress={redirectScanner}>
-                                    <Text>SCANN</Text>
+                            </HStack>
+                        </VStack>
+                    </Box>
+                    <Box p={2} mb={4} alignItems="center" rounded="lg" shadow={2}
+                        bg={{
+                            linearGradient: {
+                                colors: ['blue.600', 'violet.800'],
+                                start: [0, 0],
+                                end: [1, 0]
+                            }
+                        }}>
+                        <VStack space={4} alignItems="center">
+                            <HStack space={2}>
+                                <Text fontWeight="bold" >Scan product</Text>
+                            </HStack>
+                            <HStack>
+                                <Divider maxWidth={300} bg={{
+                                    linearGradient: {
+                                        colors: ['violet.900', 'blue.500'],
+                                        start: [0, 0],
+                                        end: [1, 0]
+                                    }
+                                }} /></HStack>
+                            <HStack>
+                                <Image borderColor={'black'} borderWidth={2} rounded="lg" size="md" source={require('../../images/barcode.png')} alt="image barcodecanner"></Image>
+                            </HStack>
+                            <HStack>
+                                <Button size="xs" onPress={redirectScanner}>
+                                    <Text>Scan</Text>
                                 </Button>
                             </HStack>
-
-
                         </VStack>
                     </Box>
-                    {
-                        //BUTTON FOR MULTIPLE MEAL SELECTION
-                    }
-                    <Box p={2} mb={4} rounded="lg" shadow={2} bg={{
-                        linearGradient: {
-                            colors: ['violet.800', 'blue.600'],
-                            start: [0, 0],
-                            end: [1, 0]
-                        }
-                    }}>
-                        <VStack space={4} alignItems="center">
-                            <Button bgColor={multipleFoodSelectBool ? "warmGray.500" : "warmGray.100"} onPress={chooseMultipleFoods} size="xs" >
-                                <Text>Multiple meals</Text>
-                            </Button>
-                        </VStack>
-                    </Box>
-                    {
-                        //BUTTON FOR DELETING LAST FOOD CARD
-                    }
-                    <Box p={2} mb={4} rounded="lg" shadow={2} bg={{
-                        linearGradient: {
-                            colors: ['violet.800', 'blue.600'],
-                            start: [0, 0],
-                            end: [1, 0]
-                        }
-                    }}
-                    >
-                        <VStack space={4} alignItems="center">
-                            <Button bgColor="warmGray.100" onPress={removeLastProduct} size="xs">
-                                <Text>Remove Last</Text>
-                            </Button>
-                        </VStack>
-                    </Box>
-
                 </Box>
-            </ScrollView>
-        </NativeBaseProvider>
+            </ScrollView >
+        </NativeBaseProvider >
     );
 }

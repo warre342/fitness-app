@@ -140,12 +140,13 @@ export default function App() {
             const food = {
                 key: foodItems.length > 0 ? foodItems[foodItems.length - 1].key + 1 : 1,
                 name: itemName,
-                protein: (prot / 100) * parseFloat(servingSize) ,
-                calories: (cals / 100) * parseFloat(servingSize),
-                carbs: (carbs / 100) * parseFloat(servingSize),
-                fats: (fats / 100) * parseFloat(servingSize)
+                protein: prot ,
+                calories: cals,
+                carbs:carbs,
+                fats: fats ,
+                prefered_size: servingSize
             }
-            setFoodItems([...foodItems, food]) //this method is easier then passing it via routing
+            setFoodItems([...foodItems, food]) 
         }
         navigation.navigate("savedmeals")
 
@@ -252,7 +253,7 @@ export default function App() {
                                         />
                                     </FormControl>
                                     <FormControl mt="3">
-                                        <FormControl.Label >Serving</FormControl.Label>
+                                        <FormControl.Label >Prefered serving size</FormControl.Label>
                                         <Input
                                             placeholder="e.g. 100g"
                                             keyboardType="numeric"

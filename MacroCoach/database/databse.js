@@ -121,15 +121,15 @@ const insertCounter = ({ startOfDay, calories, protein, carbs, fats }) => {
 
 
 //steek een row in de table foodItems
-const insertFoodItem = ({key, name, calories, protein, carbs, fats}) => {
+const insertFoodItem = ({key, name, calories, protein, carbs, fats, prefered_size}) => {
   console.log("Starting fooditem insertion");
 
   return new Promise((resolve, reject) => {
     db.transaction(
       tx => {
         tx.executeSql(
-          'INSERT OR REPLACE INTO foodItems (key, name, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?);',
-          [key, name, calories, protein, carbs, fats],
+          'INSERT OR REPLACE INTO foodItems (key, name, calories, protein, carbs, fats, prefered_size) VALUES (?, ?, ?, ?, ?, ?, ?);',
+          [key, name, calories, protein, carbs, fats, prefered_size],
           (_, result) => {
             console.log("foodItem inserted successfully");
             resolve(result);
@@ -218,7 +218,7 @@ const setupTableFoodItemsAsync = async () => {
     await new Promise((resolve, reject) => {
       db.transaction(tx => {
         tx.executeSql(
-          'CREATE TABLE IF NOT EXISTS foodItems (key INTEGER PRIMARY KEY NOT NULL, name TEXT NOT NULL,calories REAL NOT NULL,  protein REAL NOT NULL, carbs REAL NOT NULL, fats REAL NOT NULL);',
+          'CREATE TABLE IF NOT EXISTS foodItems (key INTEGER PRIMARY KEY NOT NULL, name TEXT NOT NULL,calories REAL NOT NULL,  protein REAL NOT NULL, carbs REAL NOT NULL, fats REAL NOT NULL, prefered_size REAL NOT NULL);',
           [],
           (_, result) => {
             console.log("Database table foodItems created successfully");
@@ -309,7 +309,7 @@ const setupFoodItemsAsync = async () => {
       db.transaction(tx => {
         tx.executeSql(
           'SELECT COUNT(*) as count FROM foodItems WHERE key = ?',
-          [1],
+          [0],
           (_, { rows: { _array } }) => {
             if (_array.length > 0 && _array[0].count > 0) {
               console.log("foodItem entry already exists");
@@ -332,8 +332,8 @@ const setupFoodItemsAsync = async () => {
         db.transaction(
           tx => {
             tx.executeSql(
-              'INSERT OR REPLACE INTO foodItems (key, name, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?);',
-              [1, "De poes van robin", 10750, 0, 0, 0],
+              'INSERT OR REPLACE INTO foodItems (key, name, calories, protein, carbs, fats, prefered_size) VALUES (?, ?, ?, ?, ?, ?, ?);',
+              [0, "De poes van robin", 10750, 0, 0, 0, 50],
               (_, result) => {
                 console.log("foodItems setup successful");
                 resolve(result);
@@ -364,18 +364,79 @@ const setupFoodItemsAsync = async () => {
   }
 };
 
+
+const deleteCounter = async (startOfDay) => {
+  console.log("starting deletion of counter row")
+  return new Promise((resolve, reject) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'DELETE FROM counters WHERE startOfDay = ?;',
+          [startOfDay],
+          (_, result) => {
+            console.log(`Row with startOfDay ${startOfDay} deleted successfully`);
+            resolve(result);
+          },
+          (_, error) => {
+            console.log('DB error deleting counter row', error);
+            reject(error);
+          }
+        );
+      },
+      (t, error) => {
+        console.log('Transaction error during counter row deletion', error);
+        reject(error);
+      },
+      (_t, _success) => {
+        console.log('Transaction successful during counter row deletion');
+      }
+    );
+  });
+};
+
+const deleteFoodItem= async (key) => {
+  console.log("starting deletion of foodItem row")
+
+  return new Promise((resolve, reject) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'DELETE FROM foodItems WHERE key = ?;',
+          [key],
+          (_, result) => {
+            console.log(`Row with key ${key} deleted successfully`);
+            resolve(result);
+          },
+          (_, error) => {
+            console.log('DB error deleting foodItem row', error);
+            reject(error);
+          }
+        );
+      },
+      (t, error) => {
+        console.log('Transaction error during foodItem row deletion', error);
+        reject(error);
+      },
+      (_t, _success) => {
+        console.log('Transaction successful during foodItem row deletion');
+      }
+    );
+  });
+};
 export const database = {
   getCounters,
   insertCounter,
   setupTableCountersAsync,
   setupCountersAsync,
   dropDatabaseTableCounterAsync,//currently only for counters
+  deleteCounter,
 
   getFoodItems,
   insertFoodItem,
   setupTableFoodItemsAsync,
   setupFoodItemsAsync,
-  dropDatabaseTableFoodItemsAsync
+  dropDatabaseTableFoodItemsAsync,
+  deleteFoodItem
 }
 
 //   vb: { startOfDay:"15/7/2024" , calories: 0, protein : 0,carbs:0, fats:0 },

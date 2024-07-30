@@ -6,6 +6,7 @@ export interface FoodItem {
   protein: number;
   carbs: number;
   fats: number;
+  prefered_size: number;
 }
 
 /*

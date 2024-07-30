@@ -11,10 +11,10 @@ export default function useDatabase() {
   useEffect(() => {
     async function loadDataAsync() {
       try {
-        await database.dropDatabaseTableCounterAsync()
+        //await database.dropDatabaseTableCounterAsync()
         await database.setupTableCountersAsync()
         await database.setupCountersAsync()
-        await database.dropDatabaseTableFoodItemsAsync()
+        //await database.dropDatabaseTableFoodItemsAsync()
         await database.setupTableFoodItemsAsync()
         await database.setupFoodItemsAsync()
       
