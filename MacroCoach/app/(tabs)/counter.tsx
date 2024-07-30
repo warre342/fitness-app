@@ -79,15 +79,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginVertical: 20,
   },
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: '#0a7ea4',//dark blue
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-  },
+
 });
 
 export default HomeScreen;

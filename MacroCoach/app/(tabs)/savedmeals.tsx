@@ -30,11 +30,12 @@ export default function App() {
 
     const databaseContext = useContext(DatabaseContext);//database
     const { foodItems, setFoodItems } = databaseContext as DatabaseContextType;
+ /* scuffed code
     const [count, setCount] = useState(0);
 
     useEffect(() => {//default values inserten
-        foodItems.forEach(x=> {if(x.key==2 ||x.key==3 ||x.key==4){setCount(count+1)} })
-        if(count!=3){
+        foodItems.forEach(x=> {if(x.key==2 ||x.key==3 ||x.key==4){setCount(count+1)} })//make sure you dont double add them
+        if(count<=3){
             setFoodItems([...foodItems,
             { key: 2, name: 'milk', calories: 470, protein: 34, carbs: 96, fats: 32 },
             //{ key: 2, name: 'bread', calories: 200, protein : 5 , carbs:0, fats:0 },
@@ -42,7 +43,7 @@ export default function App() {
             { key: 4, name: 'de poes van robin', calories: 10755.6, protein: 0, carbs: 0, fats: 0 }])
         }
     }, [])
-
+*/ 
     const [inputFood, setInputFood] = useState({//food that is typed in input
         key: foodItems.length > 0 ? foodItems[foodItems.length - 1].key + 1 : 1,
         name: '',
@@ -66,7 +67,7 @@ export default function App() {
     const addProduct = () => {
         // Add the new food item to foodData array
         setFoodItems([...foodItems, inputFood]);
-
+        console.log(foodItems)
         // Reset the food state
         setInputFood({
             key: inputFood.key + 1,  // increment the id for the next item
@@ -180,7 +181,6 @@ export default function App() {
                                 })}</Flex>
                         </VStack>
                     </Box>
-                    <Button>clear cards</Button>
 
 
 

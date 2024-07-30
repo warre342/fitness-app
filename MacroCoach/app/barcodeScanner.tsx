@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
 //import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Camera, CameraView } from 'expo-camera';
 import axios from 'axios';
 import { Box, Center, Divider, HStack, Icon, ScrollView, VStack, Text, Button, Modal, FormControl, Input } from 'native-base';
+import { DatabaseContextType } from '@/@types/databaseContextType';
+import { DatabaseContext } from '@/context/databaseContext';
+import { useNavigation } from 'expo-router';
+import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
+import { ParamListBase } from '@react-navigation/native';
 //barcode Scanner is depricated, using expo camera https://github.com/expo/fyi/blob/main/barcode-scanner-to-expo-camera.md
 
 interface ProductData {
@@ -58,8 +63,8 @@ export default function App() {
 
     // What happens when we scan the bar code
     const handleBarCodeScanned = ({ type, data }: any) => {
-        setScanned(true);
         setBarcodeText(data);
+        setScanned(true);
         (async (url: string) => {
             try {
                 const response = await axios.get(url, {
@@ -119,14 +124,32 @@ export default function App() {
 
     //modal
     const [showModal, setShowModal] = useState(false);
+    const databaseContext = useContext(DatabaseContext);//database
+    const { foodItems, setFoodItems } = databaseContext as DatabaseContextType;
+    const [itemName, setItemName] = useState('');
+    const [servingSize, setServingSize] = useState('');//this is the chosen size not the size from the scrape
+    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
-    const addFoodItem= () => {
-        let prot= JSONdata?.product?.nutriments?.["proteins_100g"] ?? "/"
-        let carbs= JSONdata?.product?.nutriments?.["carbohydrates_100g"] ?? "/"
-        let fats=JSONdata?.product?.nutriments?.["fat_100g"] ?? "/"
-        let cals=JSONdata?.product?.nutriments?.["energy-kcal_100g"] ?? "/"               
+    const addFoodItem = () => {
+        let prot = JSONdata?.product?.nutriments?.["proteins_100g"]
+        let carbs = JSONdata?.product?.nutriments?.["carbohydrates_100g"]
+        let fats = JSONdata?.product?.nutriments?.["fat_100g"]
+        let cals = JSONdata?.product?.nutriments?.["energy-kcal_100g"]
 
-        
+        if ((prot !== undefined) && (carbs !== undefined) && (fats !== undefined) && (cals !== undefined)) {
+            const food = {
+                key: foodItems.length > 0 ? foodItems[foodItems.length - 1].key + 1 : 1,
+                name: itemName,
+                protein: (prot / 100) * parseFloat(servingSize) ,
+                calories: (cals / 100) * parseFloat(servingSize),
+                carbs: (carbs / 100) * parseFloat(servingSize),
+                fats: (fats / 100) * parseFloat(servingSize)
+            }
+            setFoodItems([...foodItems, food]) //this method is easier then passing it via routing
+        }
+        navigation.navigate("savedmeals")
+
+
     }
     // Return the View
     return (
@@ -222,11 +245,20 @@ export default function App() {
                                 <Modal.Body>
                                     <FormControl>
                                         <FormControl.Label>Name</FormControl.Label>
-                                        <Input />
+                                        <Input
+
+                                            value={itemName} // Synchronize the input field with the state variable
+                                            onChangeText={text => setItemName(text)} // Update the state variable when the user types
+                                        />
                                     </FormControl>
                                     <FormControl mt="3">
                                         <FormControl.Label >Serving</FormControl.Label>
-                                        <Input placeholder="e.g. 100g" keyboardType="numeric"/>
+                                        <Input
+                                            placeholder="e.g. 100g"
+                                            keyboardType="numeric"
+                                            value={servingSize} // Synchronize the input field with the state variable
+                                            onChangeText={text => setServingSize(text)} // Update the state variable when the user types
+                                        />
                                     </FormControl>
                                 </Modal.Body>
                                 <Modal.Footer>
@@ -252,14 +284,15 @@ export default function App() {
                 )
                 }
 
+                <Text style={styles.leftAlign} italic>Food values may not be 100% accurate</Text>
 
-                <Text style={styles.maintext}>{JSON.stringify(JSONdata)}</Text>
 
 
             </Box>
         </ScrollView>
     );
 }
+//<Text style={styles.maintext}>{JSON.stringify(JSONdata)}</Text>
 
 const styles = StyleSheet.create({
     container: {
@@ -267,6 +300,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    leftAlign: {
+        //paddingLeft: "2%",
+        //alignSelf: 'flex-start',
+        fontSize: 10
     },
     maintext: {
         fontSize: 16,
