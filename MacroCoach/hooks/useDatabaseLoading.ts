@@ -14,7 +14,7 @@ export default function useDatabase() {
         //await database.dropDatabaseTableCounterAsync()
         await database.setupTableCountersAsync()
         await database.setupCountersAsync()
-        //await database.dropDatabaseTableFoodItemsAsync()
+       // await database.dropDatabaseTableFoodItemsAsync()
         await database.setupTableFoodItemsAsync()
         await database.setupFoodItemsAsync()
       

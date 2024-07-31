@@ -10,10 +10,18 @@ import useDatabase from '@/hooks/useDatabaseLoading';
 import { DatabaseContextProvider } from '../context/databaseContext'
 import { FoodItemChangesContextProvider } from '../context/foodItemChangesContext'
 import { NativeBaseProvider } from 'native-base';
+import { LinearGradient } from "expo-linear-gradient";
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
+  const config = {
+    dependencies: {
+      'linear-gradient': LinearGradient
+    }
+  };
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
@@ -34,7 +42,7 @@ export default function RootLayout() {
   }
 
   return (
-    <NativeBaseProvider>
+    <NativeBaseProvider config={config}>
       <DatabaseContextProvider>
         <FoodItemChangesContextProvider>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

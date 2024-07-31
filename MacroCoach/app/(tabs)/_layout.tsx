@@ -1,13 +1,14 @@
 import { Tabs, useFocusEffect } from 'expo-router'; // is een wrapper voor import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, { useContext, useEffect } from 'react';
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { TabBarIcon, TabBarMaterialCommunityIcons } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Badge, Box } from 'native-base';
 import { FoodItemChangesContext } from '@/context/foodItemChangesContext';
 import { FoodItemChangesContextType } from '@/@types/foodItemChangesContextType';
 import { Route } from 'expo-router/build/Route';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 /*
 
       <Tabs.Screen
@@ -38,7 +39,7 @@ export default function TabLayout() {
 
   const renderIconWithBadge = (iconName: any, badgeCount: number, color: any, focused: any) => (
     <Box position="relative" width={30} height={30} justifyContent="center" alignItems="center">
-      <TabBarIcon name={focused ? iconName : `${iconName}-outline`} color={color} />
+      <TabBarMaterialCommunityIcons name={iconName} size={28} color={color} />
       {badgeCount > 0 && (
         <Badge
           rounded="full"
@@ -73,7 +74,7 @@ export default function TabLayout() {
         options={{
           title: 'Counter',
           tabBarIcon: ({ color, focused }) =>
-            renderIconWithBadge('code-slash', addCount, color, focused), // Example with badge count 2
+            renderIconWithBadge('counter', addCount, color, focused), // Example with badge count 2
         }}
       />
       <Tabs.Screen
@@ -81,7 +82,7 @@ export default function TabLayout() {
         options={{
           title: 'meals',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+            <MaterialCommunityIcons size={28} name={"food-variant"} color={color} />
           ),
         }}
       />

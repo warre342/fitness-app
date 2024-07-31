@@ -396,7 +396,7 @@ const deleteCounter = async (startOfDay) => {
 
 const deleteFoodItem= async (key) => {
   console.log("starting deletion of foodItem row")
-
+  console.log(key)
   return new Promise((resolve, reject) => {
     db.transaction(
       tx => {

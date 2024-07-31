@@ -11,6 +11,8 @@ import { DatabaseContextType } from "@/@types/databaseContextType";
 import { FoodItemChangesContext } from "@/context/foodItemChangesContext";
 import { FoodItemChangesContextType } from "@/@types/foodItemChangesContextType";
 import { FoodItem } from '@/@types/foodItem';
+import { custom_bg_theme } from '@/constants/Colors';
+import { ICounter } from '@/@types/counter';
 
 
 
@@ -42,7 +44,27 @@ export default function App() {
 
     const databaseContext = useContext(DatabaseContext);//database
     const { counters, setCounters, insertOrReplaceCounter, foodItems, setFoodItems } = databaseContext as DatabaseContextType;
+    const [lastCounter, setLastCounter] = useState<ICounter[]>([])//holds a list of the states of the last counter
+    const [lastCounterChangeBool, setLastCounterChangeBool] = useState<Boolean>(false)
 
+    useEffect(() => {
+        setLastCounter([...lastCounter, counters[counters.length - 1]])
+    }, [counters])
+
+    const undoCounter = () => {
+        console.log("holds a list of the states of the last counter: ",lastCounter)
+        setCounters(counters.map((counter, index) => {
+            if(index==counter.length-1){
+                return lastCounter[lastCounter.length-2]//vervang huidige counter door de vorige 
+            }
+            else{return counter}
+        }))
+        setLastCounter(lastCounter.slice(0, lastCounter.length-1))//verwijder de oude counter 
+        setAddCount(addCount -1)
+        if(lastCounter.length>3){
+            setLastCounter(lastCounter.slice(1, lastCounter.length))
+        }
+    }
 
     const [inputFood, setInputFood] = useState({//food that is typed in input
         key: foodItems.length > 0 ? foodItems[foodItems.length - 1].key + 1 : 1,
@@ -58,20 +80,21 @@ export default function App() {
     const foodItemChangesContext = useContext(FoodItemChangesContext);//database
     const { addCount, setAddCount } = foodItemChangesContext as FoodItemChangesContextType;
 
-    const chooseFood = (food: FoodItem, size:number) => {
+    const chooseFood = (food: FoodItem, size: number) => {
         setCounters(counters.map((counter, index) => { //voeg food toe aan laatse counter
             if (index === counters.length - 1) {
                 return {
                     ...counter,
-                    calories: counter.calories + (food.calories/100)*(size),
-                    protein: counter.protein + (food.protein/100)*(size),
-                    carbs: counter.carbs + (food.carbs/100)*(size),
-                    fats: counter.fats + (food.fats/100)*(size)
+                    calories: counter.calories + (food.calories / 100) * (size),
+                    protein: counter.protein + (food.protein / 100) * (size),
+                    carbs: counter.carbs + (food.carbs / 100) * (size),
+                    fats: counter.fats + (food.fats / 100) * (size)
                 };
             } else {
                 return counter;
             }
         }));
+
         setAddCount(addCount + 1)
     }
 
@@ -117,127 +140,109 @@ export default function App() {
         setInputFood((prevFood) => ({ ...prevFood, prefered_size: parseInt(text, 10) || 100 }));
     };
 
-    const removeLastProduct = () => {
-        setFoodItems(foodItems.slice(0, -1));
-    };
-
     const redirectScanner = () => {
         navigation.navigate("barcodeScanner")
     }
 
     return (
-        <NativeBaseProvider config={config}>
-            <ScrollView flex={1} h="100%">
-                <Box p={4}>
-                    {
-                        //HEADER
-                    }
-                    <Text fontSize="xl" fontWeight="bold" mb={4} marginTop={"5%"} textAlign="center" >
-                        Food Items
-                    </Text>
+        <ScrollView flex={1} h="100%">
+            <Box p={4}>
+                {
+                    //HEADER
+                }
+                <Text fontSize="xl" fontWeight="bold" mb={4} marginTop={"5%"} textAlign="center" >
+                    Food Items
+                </Text>
 
-                    <Box p={2} mb={4} alignItems="center">
-                        <VStack space={2}>
-                            <Text textAlign="center" fontSize="sm" fontWeight="bold">Name/Calories/Protein/Carbohydrates/Fats</Text>
-                            <Box><Divider /></Box>
-                            {
-                                //CARDS
-                            }
-                            <Flex direction="row" flexWrap="wrap" justifyContent="center" >
-                                {foodItems.map((food) => {
-                                    return (
-                                        <FoodCard chooseFood={chooseFood} food={food} deleteFood={deleteFood} />
-                                    )
-                                })}</Flex>
-                        </VStack>
-                    </Box>
+                <Box p={2} mb={4} alignItems="center" width={"100%"}>
+                    <VStack space={2}>
+                        <Text textAlign="center" fontSize="sm" fontWeight="bold">Per 100 grams:</Text>
+                        <Text textAlign="center" fontSize="sm" fontWeight="bold">Name/Calories/Protein/Carbohydrates/Fats</Text>
+                        <Box><Divider /></Box>
+                        {
+                            //CARDS
+                        }
+                        <Flex direction="row" flexWrap="wrap" justifyContent="center" >
+                            {foodItems.map((food) => {
+                                return (
+                                    <FoodCard key={food.key} chooseFood={chooseFood} food={food} deleteFood={deleteFood} />
+                                )
+                            })}
 
-                    {
-                        //INPUT FIELD for adding a card
-                    }
-                    <Box p={2} mb={4} alignItems="center" rounded="lg" shadow={2}
-                        bg={{
-                            linearGradient: {
-                                colors: ['blue.600', 'violet.800'],
-                                start: [0, 0],
-                                end: [1, 0]
-                            }
-                        }}>
-                        <VStack space={4} alignItems="center">
-                            <HStack space={2}>
-                                <Text fontWeight="bold" >Add product</Text>
-                            </HStack>
-                            <HStack><Divider maxWidth={300} bg={{
-                                linearGradient: {
-                                    colors: ['violet.900', 'blue.500'],
-                                    start: [0, 0],
-                                    end: [1, 0]
-                                }
-                            }} /></HStack>
-
-                            <HStack alignItems="center" space={2}>
-                                <Text flex={1} >Name: </Text>
-                                <Input flex={2} variant="underlined" placeholder="..." value={inputFood.name} onChangeText={handleName} />
-                            </HStack>
-                            <HStack alignItems="center" space={2}>
-                                <Text flex={1} >calories/100g: </Text>
-                                <Input flex={2} variant="underlined" placeholder="0g" value={inputFood.calories === 0 ? '' : inputFood.calories.toString()} onChangeText={handleCalories} keyboardType="numeric" />
-                            </HStack>
-                            <HStack alignItems="center" space={2}>
-                                <Text flex={1} >Protein/100g: </Text>
-                                <Input flex={2} variant="underlined" placeholder="0g" value={inputFood.protein === 0 ? '' : inputFood.protein.toString()} onChangeText={handleProtein} keyboardType="numeric" />
-                            </HStack>
-                            <HStack alignItems="center" space={2}>
-                                <Text flex={1} >carbs/100g: </Text>
-                                <Input flex={2} variant="underlined" placeholder="0g" value={inputFood.carbs === 0 ? '' : inputFood.carbs.toString()} onChangeText={handleCarbs} keyboardType="numeric" />
-                            </HStack>
-                            <HStack alignItems="center" space={2}>
-                                <Text flex={1} >fats/100g: </Text>
-                                <Input flex={2} variant="underlined" placeholder="0g" value={inputFood.fats === 0 ? '' : inputFood.fats.toString()} onChangeText={handleFats} keyboardType="numeric" />
-                            </HStack>
-                            <HStack alignItems="center" space={2}>
-                                <Text flex={1} >Prefered Serving size: </Text>
-                                <Input flex={2} variant="underlined" placeholder="50g" value={inputFood.prefered_size === 50 ? '' : inputFood.prefered_size.toString()} onChangeText={handlePrefered_size} />
-                            </HStack>
-                            <HStack alignItems="center" space={2}>
-                                <Button size="xs" onPress={addProduct}>
-                                    <Text>Add</Text>
-                                </Button>
-                            </HStack>
-                        </VStack>
-                    </Box>
-                    <Box p={2} mb={4} alignItems="center" rounded="lg" shadow={2}
-                        bg={{
-                            linearGradient: {
-                                colors: ['blue.600', 'violet.800'],
-                                start: [0, 0],
-                                end: [1, 0]
-                            }
-                        }}>
-                        <VStack space={4} alignItems="center">
-                            <HStack space={2}>
-                                <Text fontWeight="bold" >Scan product</Text>
-                            </HStack>
-                            <HStack>
-                                <Divider maxWidth={300} bg={{
-                                    linearGradient: {
-                                        colors: ['violet.900', 'blue.500'],
-                                        start: [0, 0],
-                                        end: [1, 0]
-                                    }
-                                }} /></HStack>
-                            <HStack>
-                                <Image borderColor={'black'} borderWidth={2} rounded="lg" size="md" source={require('../../images/barcode.png')} alt="image barcodecanner"></Image>
-                            </HStack>
-                            <HStack>
-                                <Button size="xs" onPress={redirectScanner}>
-                                    <Text>Scan</Text>
-                                </Button>
-                            </HStack>
-                        </VStack>
-                    </Box>
+                        </Flex>
+                        <HStack justifyContent="center" width="100%" mt={1}>
+                            <Button onPress={undoCounter}>
+                                <Text>Undo</Text>
+                            </Button>
+                        </HStack>
+                    </VStack>
                 </Box>
-            </ScrollView >
-        </NativeBaseProvider >
+
+                {
+                    //INPUT FIELD for adding a card
+                }
+                <Box mb={4} alignItems="center" shadow={2}
+                    bg={custom_bg_theme} p="4" rounded="xl">
+                    <VStack space={4} alignItems="center">
+                        <HStack space={2}>
+                            <Text fontWeight="bold" >Add product</Text>
+                        </HStack>
+                        <HStack><Divider maxWidth={300} bg={'light.400'} /></HStack>
+
+                        <HStack alignItems="center" space={2}>
+                            <Text flex={1} >Name: </Text>
+                            <Input flex={2} textAlign={"center"} variant="underlined" placeholder="..." value={inputFood.name} onChangeText={handleName} />
+                        </HStack>
+                        <HStack alignItems="center" space={2}>
+                            <Text flex={1} >Calories/100g: </Text>
+                            <Input flex={2} textAlign={"center"} variant="underlined" placeholder="0g" value={inputFood.calories === 0 ? '' : inputFood.calories.toString()} onChangeText={handleCalories} keyboardType="numeric" />
+                        </HStack>
+                        <HStack alignItems="center" space={2}>
+                            <Text flex={1} >Protein/100g: </Text>
+                            <Input flex={2} textAlign={"center"} variant="underlined" placeholder="0g" value={inputFood.protein === 0 ? '' : inputFood.protein.toString()} onChangeText={handleProtein} keyboardType="numeric" />
+                        </HStack>
+                        <HStack alignItems="center" space={2}>
+                            <Text flex={1} >Carbs/100g: </Text>
+                            <Input flex={2} textAlign={"center"} variant="underlined" placeholder="0g" value={inputFood.carbs === 0 ? '' : inputFood.carbs.toString()} onChangeText={handleCarbs} keyboardType="numeric" />
+                        </HStack>
+                        <HStack alignItems="center" space={2}>
+                            <Text flex={1} >Fats/100g: </Text>
+                            <Input flex={2} textAlign={"center"} variant="underlined" placeholder="0g" value={inputFood.fats === 0 ? '' : inputFood.fats.toString()} onChangeText={handleFats} keyboardType="numeric" />
+                        </HStack>
+                        <HStack alignItems="center" space={2}>
+                            <Text flex={1} >Prefered Serving size: </Text>
+                            <Input flex={2} textAlign={"center"} variant="underlined" placeholder="50g" value={inputFood.prefered_size === 50 ? '' : inputFood.prefered_size.toString()} onChangeText={handlePrefered_size} />
+                        </HStack>
+                        <HStack alignItems="center" space={2}>
+                            <Button size="xs" onPress={addProduct}>
+                                <Text>Add</Text>
+                            </Button>
+                        </HStack>
+                    </VStack>
+                </Box>
+                {
+                    //scan product
+
+                }
+                <Box p={2} mb={4} alignItems="center" rounded="lg" shadow={2}
+                    bg={custom_bg_theme}>
+                    <VStack space={4} alignItems="center">
+                        <HStack space={2}>
+                            <Text fontWeight="bold" >Scan product</Text>
+                        </HStack>
+                        <HStack>
+                            <Divider maxWidth={300} bg={'light.300'} /></HStack>
+                        <HStack>
+                            <Image borderColor={'black'} borderWidth={2} rounded="lg" size="md" source={require('../../images/barcode.png')} alt="image barcodecanner"></Image>
+                        </HStack>
+                        <HStack>
+                            <Button size="xs" onPress={redirectScanner}>
+                                <Text>Scan</Text>
+                            </Button>
+                        </HStack>
+                    </VStack>
+                </Box>
+            </Box>
+        </ScrollView >
     );
 }

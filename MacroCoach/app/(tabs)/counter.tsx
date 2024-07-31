@@ -1,97 +1,86 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { NativeBaseProvider, Box, Button, Divider } from "native-base";
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { NativeBaseProvider, Box, Button, Divider, ScrollView, Text, VStack, HStack, Center } from "native-base";
 import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { DatabaseContext } from '@/context/databaseContext';
 import { DatabaseContextType } from '@/@types/databaseContextType';
 import { FoodItem } from '@/@types/foodItem';
 import { FoodItemChangesContext } from '@/context/foodItemChangesContext';
 import { FoodItemChangesContextType } from '@/@types/foodItemChangesContextType';
+import { custom_bg_theme } from '@/constants/Colors';
+import { LinearGradient } from 'react-native-svg';
 
 const HomeScreen = () => {
+  const databaseContext = useContext(DatabaseContext);
+  const { counters, insertOrReplaceCounter } = databaseContext as DatabaseContextType;
 
+  const foodItemChangesContext = useContext(FoodItemChangesContext);
+  const { setAddCount } = foodItemChangesContext as FoodItemChangesContextType;
 
-  const route = useRoute<any>();
-  //console.log("route", route.params);
-  //const [foodArray, setFoodArray] = useState<FoodItem[]>([{ key: 0, name: "", calories: 0, protein: 0, carbs: 0, fats: 0, prefered_size:100 }]);
-  //console.log("foodarray", foodArray);
-
-
-  const databaseContext = useContext(DatabaseContext);//database
-  const { counters, setCounters, insertOrReplaceCounter } = databaseContext as DatabaseContextType;
-
-
-  const foodItemChangesContext = useContext(FoodItemChangesContext);//database
-  const { addCount, setAddCount } = foodItemChangesContext as FoodItemChangesContextType;
-/*
-  useEffect(() => {
-    console.log("changed route.params", route.params)
-    if (route.params !== undefined && route.params[0]) {
-      setFoodArray(route.params)
-    }
-    console.log("foodarray na set", foodArray, "end")
-  }, [route.params]);
-
-  useEffect(() => {
-    if (foodArray.length > 0 && foodArray[0].key !== 0) {
-      setCounters(counters.map((counter, index) => {
-        if (index === counters.length - 1) {
-          const countObject = { calories: 0, protein: 0, carbs: 0, fats: 0 };
-          foodArray.forEach((food: FoodItem) => {
-            countObject.calories += food.calories;
-            countObject.protein += food.protein;
-            countObject.carbs += food.carbs;
-            countObject.fats += food.fats;
-          });
-          return {
-            ...counter,
-            calories: counter.calories + countObject.calories,
-            protein: counter.protein + countObject.protein,
-            carbs: counter.carbs + countObject.carbs,
-            fats: counter.fats + countObject.fats
-          };
-        } else {
-          return counter;
-        }
-      }));
-    }
-  }, [foodArray]);
-*/
   useFocusEffect(
     React.useCallback(() => {
       setAddCount(0); // Reset badge count when this screen is focused
+      setNum(num+20)
     }, [])
   );
 
-  console.log(counters, "local counters")
+  const lastCounter = counters.length > 0 ? counters[counters.length - 1] : { calories: 0, protein: 0, carbs: 0, fats: 0 };
+  const [num, setNum] = useState(30)
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Daily Counter</Text>
-      <Text style={styles.counter}>calorie count: {counters.at(counters.length - 1)?.calories.toFixed(2).replace(/\.00$/, '')}</Text>
-      <Text style={styles.counter}>protein count: {counters.at(counters.length - 1)?.protein.toFixed(2).replace(/\.00$/, '')}g</Text>
-      <Text style={styles.counter}>carbohydrate count: {counters.at(counters.length - 1)?.carbs.toFixed(2).replace(/\.00$/, '')}g</Text>
-      <Text style={styles.counter}>fat count: {counters.at(counters.length - 1)?.fats.toFixed(2).replace(/\.00$/, '')}g</Text>
-      <Button onPress={() => insertOrReplaceCounter({ startOfDay: "15/7/2024", calories: 0, protein: 0, carbs: 0, fats: 0 })}>Clear counter</Button>
+    <ScrollView flex={1} h="100%">
+      <Box p={4}>
+        {/* HEADER */}
+        <Text fontSize="xl" fontWeight="bold" marginTop={5} textAlign="center">
+          Main Page
+        </Text>
+      </Box>
+      <Box
+        alignItems="center"
+        shadow={2}
+        justifyContent="center"
+        width="90%"
+        maxWidth="90%"
+        mx="auto"
+        my={6}
+        py={4}
+        px={4}
+        rounded="lg"
+        bg={custom_bg_theme}
+      >
+        <VStack space={4} >
+          <Text fontSize="lg" fontWeight="bold" textAlign="center">
+            Counter
+          </Text>
+          <Box><HStack>
+            <Divider alignSelf="center" bg={'light.400'} />
+          </HStack></Box>
+          <HStack justifyContent="space-between">
+            <Text>Calorie count: </Text>
+            <Text>{lastCounter.calories.toFixed(2).replace(/\.00$/, '')}</Text>
+          </HStack>
+          <HStack justifyContent="space-between">
+            <Text>Protein count: </Text>
+            <Text>{lastCounter.protein.toFixed(2).replace(/\.00$/, '')}g</Text>
+          </HStack>
+          <HStack justifyContent="space-between">
+            <Text>Carbohydrate count: </Text>
+            <Text>{lastCounter.carbs.toFixed(2).replace(/\.00$/, '')}g</Text>
+          </HStack>
+          <HStack justifyContent="space-between">
+            <Text>Fat count: </Text>
+            <Text>{lastCounter.fats.toFixed(2).replace(/\.00$/, '')}g</Text>
+          </HStack>
+          <HStack alignSelf={"center"}>
+            <Button onPress={() => insertOrReplaceCounter({ startOfDay: "15/7/2024", calories: 0, protein: 0, carbs: 0, fats: 0 })}>
+              <Text>Clear counter</Text>
 
-    </View>
+            </Button>
+          </HStack>
+
+        </VStack>
+      </Box>
+    </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: '20%',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  counter: {
-    fontSize: 18,
-    marginVertical: 20,
-  },
-
-});
 
 export default HomeScreen;

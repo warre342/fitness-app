@@ -44,11 +44,6 @@ export default function App() {
         })()
     }
 
-    const addProduct = () => {
-
-
-
-    }
     // Request Camera Permission
     useEffect(() => {
         askForCameraPermission();
@@ -97,7 +92,7 @@ export default function App() {
                 console.error('Error:', error);
                 throw error;
             }
-        })(constApiLink + barcodeText + ".json")//get the json object from the link and save it
+        })(constApiLink + data + ".json")//get the json object from the link and save it
 
         //console.log("filtered jsondata", JSONdata, "\n")
         console.log('Type: ' + type + '\nData: ' + data + ".")
