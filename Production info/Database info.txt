@@ -1,0 +1,41 @@
+Connection of the tables
+foodItems PK key
+counters PK startOfDay
+
+Methods inside of 'databse.js' 
+	Table 'counters':
+		getCounters,
+		insertCounter ({ startOfDay, calories, protein, carbs, fats }) ,
+		setupTableCountersAsync, ->'CREATE TABLE IF NOT EXISTS counters (startOfDay TEXT PRIMARY KEY NOT NULL, calories REAL NOT NULL, protein REAL NOT NULL, carbs REAL NOT NULL, fats REAL NOT NULL);'
+		setupCountersAsync, //als table leeg is, steek er een default waarde in
+		dropDatabaseTableCounterAsync,
+		deleteCounter (startOfDay) ,
+	Table 'foodItems':
+		getFoodItems,
+		insertFoodItem ({key, name, calories, protein, carbs, fats, prefered_size}) ,
+		setupTableFoodItemsAsync, ->'CREATE TABLE IF NOT EXISTS foodItems (key INTEGER PRIMARY KEY NOT NULL, name TEXT NOT NULL,calories REAL NOT NULL,  protein REAL NOT NULL, carbs REAL NOT NULL, fats REAL NOT NULL, prefered_size REAL NOT NULL);'
+		setupFoodItemsAsync, // als table leeg is, steek er een default waarde in 
+		dropDatabaseTableFoodItemsAsync,
+		deleteFoodItem (key)
+	On load the following hook will be run usually:
+		useDatabaseLoading.ts
+		
+		This will make sure the tables are created if they dont exist and put a default value in if they are empty
+		The dropping of tables can be uncommented on load so we start fresh
+
+Contents of databaseContext.tsx
+	Will obtain saved values in the tables on load, and load them into memory
+	After will be obtainable as values
+	Changing these values will trigger methodes to update the database to resemble the local variables
+
+Changes to be implemented: 
+	we gaan een tabel registrations maken die een FK heeft van counter, een FK van foodItem, de timestamp van toevoegen en een auto incremented number PK
+
+	verder todo: 
+		afmaken van databse.js registration functies
+		context aanpassen bij fooditemchanges.tsx zodat registrations daar worden opgeslagen
+		Bij het toevoegen van een fooditem aan de counter ook toevoegen aan registrations 
+		een frontend maken die dit displayed 
+		een undo button maken die dan de registration verwijderd en de counter opnieuw berekent
+
+			
