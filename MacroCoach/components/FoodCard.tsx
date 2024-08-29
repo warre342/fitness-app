@@ -51,7 +51,6 @@ export function FoodCard({ chooseFood, deleteFood, food }: any) {
             <HStack width={"90%"} mx={"5%"} marginTop={3} mb={3} space={3}>
 
               <Button onPress={() => {
-                setExpanded(!expanded)
                 chooseFood(food, food.prefered_size)
               }}>
                 {"Size: " + (food.prefered_size ?? "/") + "g"}

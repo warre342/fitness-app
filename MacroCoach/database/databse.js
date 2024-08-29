@@ -86,6 +86,66 @@ const getFoodItems = async () => {
   });
 };
 
+const getAllRegistrations = async () => {
+  return new Promise((resolve, reject) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'SELECT * FROM registrations;',
+          [],
+          (_, { rows: { _array } }) => {
+            resolve(_array); // Resolve the promise with the array of rows
+          },
+          (_, error) => {
+            console.log("DB error load histories");
+            console.log(error);
+            reject(error); // Reject the promise with the error
+          }
+        );
+      },
+      (t, error) => {
+        console.log("Transaction error during load histories");
+        console.log(error);
+        reject(error); // Reject the promise with the error
+      },
+      (_t, _success) => {
+        console.log("Transaction successful during load histories");
+        // Note: Success callback isn't necessary if you're handling success in the query's callback
+      }
+    );
+  });
+};
+
+const getRegistrations = async (counterStartTime) => {
+  return new Promise((resolve, reject) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'SELECT * FROM registrations WHERE counterStartTime = ?;',
+          [counterStartTime],
+          (_, { rows: { _array } }) => {
+            resolve(_array); // Resolve the promise with the array of rows
+          },
+          (_, error) => {
+            console.log("DB error load histories");
+            console.log(error);
+            reject(error); // Reject the promise with the error
+          }
+        );
+      },
+      (t, error) => {
+        console.log("Transaction error during load histories");
+        console.log(error);
+        reject(error); // Reject the promise with the error
+      },
+      (_t, _success) => {
+        console.log("Transaction successful during load histories");
+        // Note: Success callback isn't necessary if you're handling success in the query's callback
+      }
+    );
+  });
+};
+
 
 
 //steek een row in de table counters
@@ -121,7 +181,7 @@ const insertCounter = ({ startOfDay, calories, protein, carbs, fats }) => {
 
 
 //steek een row in de table foodItems
-const insertFoodItem = ({key, name, calories, protein, carbs, fats, prefered_size}) => {
+const insertFoodItem = ({ key, name, calories, protein, carbs, fats, prefered_size }) => {
   console.log("Starting fooditem insertion");
 
   return new Promise((resolve, reject) => {
@@ -153,6 +213,10 @@ const insertFoodItem = ({key, name, calories, protein, carbs, fats, prefered_siz
 
 
 
+//steek een row in de table foodItems
+
+
+
 //drop alle tables
 const dropDatabaseTableCounterAsync = async () => {
   return new Promise((resolve, reject) => {
@@ -178,6 +242,20 @@ const dropDatabaseTableFoodItemsAsync = async () => {
         (_, result) => { resolve(result) },
         (_, error) => {
           console.log("error dropping foodItems table"); reject(error)
+        }
+      )
+    })
+  })
+}
+const dropDatabaseTableRegistrationsAsync = async () => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'drop table registrations;',
+        [],
+        (_, result) => { resolve(result) },
+        (_, error) => {
+          console.log("error dropping counters table"); reject(error)
         }
       )
     })
@@ -231,9 +309,43 @@ const setupTableFoodItemsAsync = async () => {
         );
       });
     });
-   console.log("fooditem table created successfully");
+    console.log("fooditem table created successfully");
   } catch (error) {
     console.log("Error during fooditem table creation :", error);
+  }
+};
+
+//maak de table foodItems aan als die nog niet bestaat
+const setupTableRegistrationsAsync = async () => {
+  console.log("Starting registration table creation");
+  try {
+    await new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS registratie (
+          id INTEGER PRIMARY KEY AUTOINCREMENT, 
+          counterStartTime TEXT NOT NULL,               -- Foreign Key
+          foodKey INTEGER NOT NULL,                     -- Foreign Key
+          timestamp DATETIME DEFAULT CURRENT_TIMESTAMP  -- Time when the product got added
+          used_size REAL NOT NULL,                      -- Used size for calculations
+          FOREIGN KEY (counterStartTime) REFERENCES counters(startOfDay),     -- Update 'another_table' to the actual table name
+          FOREIGN KEY (foodKey) REFERENCES foodItems(key)                     -- Update 'food_table' to the actual table name
+        );`,
+        [],
+          (_, result) => {
+            console.log("Database table: registration, created successfully");
+            resolve(result);
+          },
+          (_, error) => {
+            console.log("DB error creating table: registration");
+            reject(error);
+          }
+        );
+      });
+    });
+    console.log("registration table created successfully");
+  } catch (error) {
+    console.log("Error during registration table creation :", error);
   }
 };
 
@@ -394,7 +506,7 @@ const deleteCounter = async (startOfDay) => {
   });
 };
 
-const deleteFoodItem= async (key) => {
+const deleteFoodItem = async (key) => {
   console.log("starting deletion of foodItem row")
   console.log(key)
   return new Promise((resolve, reject) => {
@@ -428,7 +540,7 @@ export const database = {
   insertCounter,
   setupTableCountersAsync,
   setupCountersAsync,
-  dropDatabaseTableCounterAsync,//currently only for counters
+  dropDatabaseTableCounterAsync,
   deleteCounter,
 
   getFoodItems,
@@ -439,5 +551,4 @@ export const database = {
   deleteFoodItem
 }
 
-//   vb: { startOfDay:"15/7/2024" , calories: 0, protein : 0,carbs:0, fats:0 },
 

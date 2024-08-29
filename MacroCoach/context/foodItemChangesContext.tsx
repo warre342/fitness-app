@@ -14,7 +14,6 @@ const FoodItemChangesContextProvider: React.FC<{ children: React.ReactNode }> = 
     const [addCount, setAddCount] = React.useState<number>(0);//als dit update, update de database
 
 
-
     return (
         <FoodItemChangesContext.Provider value={{ addCount, setAddCount}}>
             {children}

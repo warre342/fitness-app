@@ -1,6 +1,6 @@
 //heb een yt vid gevolgd die had alles apart, beter niet gedaan
 export interface FoodItem {
-  key: number;
+  key: number; //key and not id because key's are used in the list interface
   name: string;
   calories: number;
   protein: number;
