@@ -16,6 +16,4 @@ The app is nearing completion—around **90% finished**—and is shaping up to b
 ### **Demo**:  
 Here’s a short demo I put together for anyone interested
 
-<video src='Production info/Demo/Screen_Recording_20240816_174537_Expo_Go.mp4' controls width="600"></video>
-
-
+https://github.com/user-attachments/assets/146e5464-49a4-4f8d-a199-15426b0c15ec
