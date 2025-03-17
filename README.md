@@ -12,3 +12,10 @@ The aim is to create a fitness app that helps users calculate macros and track t
 - Adding a history feature to allow users to review and adjust their daily counter as needed.  
 
 The app is nearing completion—around **90% finished**—and is shaping up to be a valuable aid for staying on track with your diet.
+
+### **Demo**:  
+Here’s a short demo I put together for anyone interested
+
+<video src='Production info/Demo/Screen_Recording_20240816_174537_Expo_Go.mp4' controls width="600"></video>
+
+
